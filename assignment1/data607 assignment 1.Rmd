@@ -1,0 +1,97 @@
+---
+title: "Data607 assignment 1"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+First, I load the data into a data frame.
+``` {r load data}
+library(RCurl)
+x <- getURL("https://archive.ics.uci.edu/ml/machine-learning-databases/mushroom/agaricus-lepiota.data")
+y <- data.frame(read.csv(text=x, header=F))
+dim(y)
+head(y)
+```
+
+Then I rename the column names.
+``` {r rename columns}
+colnames(y) <- c("poisonous-or-edible","cap-shape","cap-surface","cap-color","bruises","odor","gill-attachment","gill-spacing","gill-size","gill-color","stalk-shape","stalk-root","stalk-surface-above-ring","stalk-surface-below-ring","stalk-color-above-ring","stalk-color-below-ring","veil-type","veil-color","ring-number","ring-type","spore-print-color","population","habitat")
+head(y)
+```
+Then, I create a new data frame, which is a subset of the original data frame.
+``` {r subset}
+tinydf <- subset(y, select = c("poisonous-or-edible","cap-shape","cap-color","odor","veil-color"))
+head(tinydf)
+```
+Then, I rename the variables to names that are easier to understand.
+``` {r rename variables}
+levels(tinydf$'poisonous-or-edible') <- c(levels(tinydf$'poisonous-or-edible'), "poisonous", "edible")
+tinydf$'poisonous-or-edible'[tinydf$'poisonous-or-edible' == "p"] <- "poisonous"
+tinydf$'poisonous-or-edible'[tinydf$'poisonous-or-edible' == "e"] <- "edible"
+
+
+levels(tinydf$'cap-shape') <- c(levels(tinydf$'cap-shape'), "bell", "conical", "convex", "flat", "knobbed", "sunken")
+tinydf$'cap-shape'[tinydf$'cap-shape' == "b"] <- "bell"
+tinydf$'cap-shape'[tinydf$'cap-shape' == "c"] <- "conical"
+tinydf$'cap-shape'[tinydf$'cap-shape' == "x"] <- "convex"
+tinydf$'cap-shape'[tinydf$'cap-shape' == "f"] <- "flat"
+tinydf$'cap-shape'[tinydf$'cap-shape' == "k"] <- "knobbed"
+tinydf$'cap-shape'[tinydf$'cap-shape' == "s"] <- "sunken"
+
+levels(tinydf$'cap-color') <- c(levels(tinydf$'cap-color'),"brown","buff","cinnamon","gray","green","pink","purple","red","white","yellow")
+tinydf$'cap-color'[tinydf$'cap-color' == "n"] <- "brown"
+tinydf$'cap-color'[tinydf$'cap-color' == "b"] <- "buff"
+tinydf$'cap-color'[tinydf$'cap-color' == "c"] <- "cinnamon"
+tinydf$'cap-color'[tinydf$'cap-color' == "g"] <- "gray"
+tinydf$'cap-color'[tinydf$'cap-color' == "r"] <- "green"
+tinydf$'cap-color'[tinydf$'cap-color' == "p"] <- "pink"
+tinydf$'cap-color'[tinydf$'cap-color' == "u"] <- "purple"
+tinydf$'cap-color'[tinydf$'cap-color' == "e"] <- "red"
+tinydf$'cap-color'[tinydf$'cap-color' == "w"] <- "white"
+tinydf$'cap-color'[tinydf$'cap-color' == "y"] <- "yellow"
+
+levels(tinydf$'odor') <- c(levels(tinydf$'odor'),"almond","anise","creosote","fishy","foul","musty","none","pungent","spicy")
+tinydf$'odor'[tinydf$'odor' == "a"] <- "almond"
+tinydf$'odor'[tinydf$'odor' == "l"] <- "anise"
+tinydf$'odor'[tinydf$'odor' == "c"] <- "creosote"
+tinydf$'odor'[tinydf$'odor' == "y"] <- "fishy"
+tinydf$'odor'[tinydf$'odor' == "f"] <- "foul"
+tinydf$'odor'[tinydf$'odor' == "m"] <- "musty"
+tinydf$'odor'[tinydf$'odor' == "n"] <- "none"
+tinydf$'odor'[tinydf$'odor' == "p"] <- "pungent"
+tinydf$'odor'[tinydf$'odor' == "s"] <- "spicy"
+
+levels(tinydf$'veil-color') <- c(levels(tinydf$'veil-color'),"brown","orange","white","yellow")
+tinydf$'veil-color'[tinydf$'veil-color' == "n"] <- "brown"
+tinydf$'veil-color'[tinydf$'veil-color' == "o"] <- "orange"
+tinydf$'veil-color'[tinydf$'veil-color' == "w"] <- "white"
+tinydf$'veil-color'[tinydf$'veil-color' == "y"] <- "yellow"
+
+head(tinydf)
+```
+
+
+
