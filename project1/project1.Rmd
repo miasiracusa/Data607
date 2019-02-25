@@ -1,0 +1,70 @@
+---
+title: "data607 project 1 msiracusa"
+output: html_document
+---
+
+``` {r load data }
+#load necessary packages
+library(RCurl)
+library(stringr)
+
+#load txt file 
+x <- 'https://raw.githubusercontent.com/miasiracusa/Data607/master/project1/tournamentinfo.txt'
+
+#read into list
+first_data <- read.delim(x, header=FALSE, stringsAsFactors=FALSE)
+
+#look at data
+head(first_data)
+
+```
+I want to work with the data in 2 sets, the first row for the competitors will populate the first set and the second row will populate the second set. I don't care about the headers, so I get rid of them.
+```{r clean up}
+#removed headers
+second_data <- first_data[-c(1:3),]
+head(second_data)
+```
+
+Now, I'll split the data into 2 sets and combine them back together using cbind.
+```{r combine rows} 
+mid1 <- second_data[seq(2, length(second_data), 3)]
+mid2 <- second_data[seq(3, length(second_data), 3)]
+
+full_data <- cbind(mid1, mid2)
+head(full_data)
+```
+Since we are asked to focus on Player’s Name, Player’s State, Total Number of Points, Player’s Pre-Rating, and Average Pre Chess Rating of Opponents, I only focus on those categories.
+``` {r categorize data}
+#use stringr package to extract the names
+competitorname <- str_trim(str_extract(mid1, "([[:alpha:]]+\\s){2,3}"))
+
+#state info is located in mid2, formated in two letter abbreviations
+competitorstate <- str_trim(str_extract(mid2, "([[:alpha:]]+\\s){1}"))
+
+#want only the number part of the pre rating, so extract the the numbers that are of length 3 or 4 and surounded by no digits. I first exctract all strings of digits, then extract the pattern i want
+rating_pre <- as.numeric(str_extract(str_extract(mid2, "[^\\d]\\d{3,4}[^\\d]"), "\\d+"))
+
+#want points in format "d.d"
+totalpoints <- as.numeric(str_extract(mid1, "(\\d\\.\\d)"))
+
+#want the numbers to end in |, so i extract all digits followed by |, then I extract all the digits. i keep getting an error "argument is not an atomic vector; coercing" but I don't know what that means or how to fix it (despite extensive googling)
+
+opponent <- str_extract_all(str_extract_all(mid1, "\\d+\\|"), "\\d+")
+
+#to calculate the average prerating of the competitors' opponents, i first make an empty column
+avgpre_opponent <- c()
+
+#then, I create a for loop that unlists (as numbers so i can find the mean) the preratings of each opponent for the respective players and finds the mean of this new list of numbers
+  for (i in 1:length(mid1))
+       {
+    avgpre_opponent[i] <- round(mean(rating_pre[as.numeric(unlist(opponent[i]))]))
+  }
+```
+
+I create the final data frame and create the csv file.
+```{r final dataframe}
+chess_data <- data.frame(competitorname, competitorstate, rating_pre, totalpoints, avgpre_opponent)
+
+write.csv(chess_data, file = "chess_data.csv", row.names = FALSE)
+```
+
