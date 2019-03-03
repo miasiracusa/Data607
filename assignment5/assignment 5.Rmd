@@ -1,0 +1,55 @@
+---
+title: "Data607 assignment 5 msiracusa"
+output: html_document
+---
+First, I load the appropriate packages.
+```{r load packages}
+library(dplyr)
+library(tidyverse)
+library(tidyr)
+```
+
+Then, I load the data.
+``````{r load data}
+raw_data <- read.csv("https://raw.githubusercontent.com/miasiracusa/Data607/master/assignment5/data607%20week5.csv", na.strings = "")
+raw_data
+```
+
+Then, I rename the columns and remove the empty row.
+``` {r name data}
+airport.data <- (raw_data)
+
+names(airport.data)[c(1, 2, 3, 5, 6)] <- c("airline", "flight status", "Los Angeles", "San Diego", "San Francisco")
+
+airport.data[5,1] <- c("ALASKA")
+airport.data[2,1] <- c("AM WEST")
+
+airport.data <- airport.data[-3,]
+
+airport.data
+```
+
+Then, I transform the data using the tidyr and dplyr packages.
+```{r transform data}
+
+airport.data <- gather(airport.data, "airport", "flights", 3:7)
+airport.data %>% mutate(flights = as.integer(flights))
+airport.data <- spread(airport.data, "flight status", "flights")
+
+```
+
+Then, I perform an analysis using the dplyr package.
+```{r analysis}
+
+analysis <- airport.data %>%
+  group_by(airline) %>%
+        summarise(
+            total.delayed = sum(delayed),
+            total.ontime = sum(`on time`),
+            total.flights = sum(delayed + `on time`),
+            percent.delayed = (total.delayed / total.flights)
+        )
+analysis
+```
+We see that ALASKA airlines had proportionally more delayed flights than AM WEST.
+
