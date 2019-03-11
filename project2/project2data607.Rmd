@@ -1,0 +1,113 @@
+---
+title: "Data607 project 2"
+output:
+  html_document: default
+  pdf_document: default
+---
+First, I load the appropriate packages.
+```{r load packages}
+library(dplyr)
+library(tidyverse)
+library(tidyr)
+```
+
+Then, I load the data.
+```{r load data}
+#i got this url from the discussion post
+
+topbooksraw <- read.csv("https://raw.githubusercontent.com/henryvalentine/MSDS2019/master/Classes/DATA%20607/Projects/Project2/topBooks.csv", na.strings = "")
+
+#the following urls are from my own github
+
+nationalparksraw <- read.csv("https://raw.githubusercontent.com/miasiracusa/Data607/master/project2/NPS__Points_of_Interest_POIs.csv", na.strings = "")
+
+scienceraw <- read.csv("https://raw.githubusercontent.com/miasiracusa/Data607/master/project2/color%20and%20heat%20absorbtion%20-%20Sheet1.csv", na.strings = "")
+
+```
+
+I'll first work with the science data. I need to rename the columns.
+``` {r sciencedata}
+scienceraw
+science.data <- (scienceraw)
+#rename rows
+names(science.data)[c(2, 3, 4, 5, 6, 7, 8)] <- c("minute 0", "minute 10", "minute 20", "minute 30", "minute 40", "minute 50", "minute 60")
+
+science.data <- gather(science.data, "minutes", "temperature", 2:8)
+
+#split into heating and cooling tables
+heating.data <- science.data[which(science.data$phase == "heating"), c("color","phase","minutes", "temperature")]
+heating.data <- heating.data[order(heating.data$color),]
+
+cooling.data <- science.data[which(science.data$phase == "cooling"), c("color","phase","minutes", "temperature")]
+cooling.data <- cooling.data[order(cooling.data$color),]
+
+cooling.data
+heating.data
+```
+
+Then I'll work with the national park data.
+``` {r nationalparks}
+park.data <- (nationalparksraw)
+
+#rename columns to clarify information
+names(park.data)[c(1,2)] <- c("Longitude", "Latitude")
+
+#order by POI type so users of data can easily find what their interested in/compare locations of everything easily
+
+park.data <- park.data[order(park.data$POITYPE),]
+
+#split data by park, so someone at one park can easily find what they're looking for and not need to look thrugh irrelevant data, I also left out irrelevant information
+
+Curecanti.data <- park.data[which(park.data$UNITNAME == "Curecanti National Recreation Area"), c("UNITNAME", "POINAME","POITYPE", "Longitude", "Latitude")]
+
+BlackCanyon.data <- park.data[which(park.data$UNITNAME == "Black Canyon of the Gunnison National Park"), c("UNITNAME", "POINAME","POITYPE", "Longitude", "Latitude")]
+
+CanyondeChelly.data <- park.data[which(park.data$UNITNAME == "Canyon de Chelly National Monument"), c("UNITNAME", "POINAME","POITYPE", "Longitude", "Latitude")]
+
+CasaGrandeRuins.data <- park.data[which(park.data$UNITNAME == "Casa Grande Ruins National Monument"), c("UNITNAME", "POINAME","POITYPE", "Longitude", "Latitude")]
+
+Canyonlands.data <- park.data[which(park.data$UNITNAME == "Canyonlands National Park"), c("UNITNAME", "POINAME","POITYPE", "Longitude", "Latitude")]
+
+CapitolReef.data <- park.data[which(park.data$UNITNAME == "Capitol Reef National Park"), c("UNITNAME", "POINAME","POITYPE", "Longitude", "Latitude")]
+
+CarlsbadCaverns.data <- park.data[which(park.data$UNITNAME == "Carlsbad Caverns National Park"), c("UNITNAME", "POINAME","POITYPE", "Longitude", "Latitude")]
+
+CapulinVolcano.data <- park.data[which(park.data$UNITNAME == "Capulin Volcano National Monument"), c("UNITNAME", "POINAME","POITYPE", "Longitude", "Latitude")]
+
+CedarBreaks.data <- park.data[which(park.data$UNITNAME == "Cedar Breaks National Monument"), c("UNITNAME", "POINAME","POITYPE", "Longitude", "Latitude")]
+
+Chamizal.data <- park.data[which(park.data$UNITNAME == "Chamizal National Memorial"), c("UNITNAME", "POINAME","POITYPE", "Longitude", "Latitude")]
+
+ChacoCulture.data <- park.data[which(park.data$UNITNAME == "Chaco Culture National Historical Park"), c("UNITNAME", "POINAME","POITYPE", "Longitude", "Latitude")]
+
+Chickasaw.data <- park.data[which(park.data$UNITNAME == "Chickasaw National Recreation Area"), c("UNITNAME", "POINAME","POITYPE", "Longitude", "Latitude")]
+
+```
+
+
+Then, the Top Amazon Books data.
+```{r topbooks}
+
+topbooksraw 
+books.data <- (topbooksraw)
+
+#remove image column
+books.data <- books.data[, -5]
+names(books.data)[c(5)] <- c("number of ratings")
+books.data <- books.data[order(books.data$genre),]
+
+#change variable type so i can work with it. find average rating and cost for each genre
+books.data <- books.data %>% mutate(
+  rating = as.numeric(rating),
+  price = as.numeric(price)
+  )
+books.data
+books.data.summary <- books.data %>% group_by(genre) %>%
+  summarise(
+    average.rating = mean(rating),
+    average.price = mean(price)
+  )
+books.data.summary
+```
+
+
