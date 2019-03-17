@@ -1,19 +1,19 @@
-<?xml version=“1.0” encoding="ISO-8859-1" ?>
+<?xml version="1.0" encoding="ISO-8859-1" ?>
 <books>
-	<book id=“1”>
+	<book id="1">
 		<title>Bad Feminist</title> 
 		<author>Roxane Gay</author> 
 		<year>2014</year> 
 		<goodreadsrating>3.9</goodreadsrating>
 	</book>
-	<book id=“2”>
+	<book id="2">
 		<title>Art and Feminism</title> 
 		<author>Helena Reckitt, Peggy Phelan</author> 
 		<year>2001</year> 
 		<goodreadsrating>4.4</goodreadsrating>
 	</book>
-	<book id=“3”>
-		<title>Women, Race & Class</title> 
+	<book id="3">
+		<title>Women, Race and Class</title> 
 		<author>Angela Davis</author> 
 		<year>1981</year> 
 		<goodreadsrating>4.4</goodreadsrating>
