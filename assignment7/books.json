@@ -1,20 +1,21 @@
-{“books” :[
-	{
-	“title” : “Bad Feminist”
-	“author” : ”Roxane Gay”
-	“year” : 2014
-	“goodreadsrating” : 3.9
-	},
-	{
-	“title” : “Art and Feminism”
-	“author” : [”Helena Reckitt”, “Peggy Phelan”]
-	“year” : 2001
-	“goodreadsrating” :  4.4
-	},
-	{
-	“title” : “Women, Race & Class”
-	“author” : ”Angela Davis”
-	“year” : 1981
-	“goodreadsrating” :  4.4
-	}]
+{
+	"books": [{
+			"title": "Bad Feminist",
+			"author": "Roxane Gay",
+			"year": 2014,
+			"goodreadsrating": 3.9
+		},
+		{
+			"title": "Art and Feminism",
+			"author": ["Helena Reckitt", "Peggy Phelan"],
+			"year": 2001,
+			"goodreadsrating": 4.4
+		},
+		{
+			"title": "Women, Race & Class",
+			"author": "Angela Davis",
+			"year": 1981,
+			"goodreadsrating": 4.4
+		}
+	]
 }
