@@ -1,0 +1,421 @@
+---
+title: "DATA 607 Project 3 <br /> Most Valued Data Science Skills"
+author: "[Team CUNY VERSE - `r format(Sys.Date(), '%B %d, %Y')`](https://www.linkedin.com/in/kleberperez/)"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: show
+    theme: sandstone
+    highlight: pygments
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#install.packages("RMySQL")
+# 1. Library
+library(DBI)
+library(RSQLite)
+library(RMySQL)
+library(tidyverse)
+library(kableExtra)
+library(plotly)
+library(ggplot2)
+library(Amelia)
+library(data.table)
+library(gganimate)
+library(gifski)
+library(plotly)
+library(ggmap)
+library(leaflet)
+```
+
+
+<div class="jumbotron jumbotron-fluid">
+  <div class="btn btn-default btn-block">
+
+  <!-- <h3>DATA 607 Project 3 Most Valued Data Science Skills </h3> -->
+  <p class="lead">RPUBS.COM, SQL, R SCRIPTS <br />AND RMARKDOWN FILES UPLOADED ON GITHUB REPO </p> 
+  
+  </div>
+<!-- </div> -->
+
+<!-- <div class="jumbotron jumbotron-fluid"> -->
+  <div class="container">
+  <div class="btn btn-info btn-block">
+  
+  <hr class="my-4">
+  
+  <div>
+  
+  <a class="label label-default" href="#" target="_blank" role="button">
+  MIA SIRACUSA</a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <a class="label label-default" href="http://rpubs.com/miasiracusa" role="button">RPUBS</a>
+  <a class="label label-default" href="https://github.com/miasiracusa/Data607" role="button">GITHUB</a>
+  <br /><br />
+    <a class="label label-default" href="#" target="_blank" role="button">
+  JAVERN WILSON</a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <a class="label label-default" href="http://rpubs.com/javernw/jwDATA607wk8Proj3" role="button">RPUBS</a>
+  <a class="label label-default" href="https://github.com/javernw/DATA607GroupProjects" role="button">GITHUB</a>
+  <br /><br />
+    <a class="label label-default" href="#" target="_blank" role="button">
+  YOHANNES DEBOCH </a> &nbsp;&nbsp;
+  <a class="label label-default" href="http://rpubs.com/jonygeta/data607projectbycunyverse" role="button">RPUBS</a>
+  <a class="label label-default" href="https://github.com/jonygeta/Data-607-Data-Science-Skills-Project-" role="button">GITHUB</a>
+  <br /><br />
+  <a class="label label-default" href="https://www.linkedin.com/in/kleberperez/" target="_blank" role="button">KLEBER PEREZ</a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <a class="label label-default" href="http://rpubs.com/kleberperez/477939" role="button">RPUBS</a>
+  <a class="label label-default" href="https://github.com/kleberperez1/CUNY-SPS-Data607-Project3" role="button">GITHUB</a>
+  
+  </div>
+  </div>
+  </div>
+</div>
+<div class="jumbotron jumbotron-fluid">
+  
+## Introduction
+This project is used to identify the most valued data science skills. As a team, we have done a deep study in identifying some important skills. On the basis of our study we have categorized data science skills into `3` main groups:
+  
+  * **Soft Skills**
+    + Communication
+    + Collaboration
+    + Critical Thinking
+    + Problem Solving
+    + Learning
+    + Data Intuition
+  * **Hard Skills**
+    + Data Aqusistion and Analysis
+    + Data Vizualization
+    + Statistics and Probability
+    
+  * **Tools**
+    + MySQL, R
+As observed, the above skills are not exhaustive. For the purpose of identifying the most valued skills we decided to demonstrate our skills using a real world dataset. To this end, we have chosen US Chronic Disease Indicators (CDI).
+</div>
+<div class="jumbotron jumbotron-fluid">
+## Background
+[Centers for Disease Control and Prevention (CDC)](https://www.cdc.gov/) - Division of Population Health provides cross-cutting set of 124 indicators that were developed by consensus and that allows states and territories and large metropolitan areas to uniformly define, collect, and report chronic disease data that are important to public health practice and available for states, territories and large metropolitan areas. In addition to providing access to state-specific indicator data, the CDI web site serves as a gateway to additional information and data resources. 
+Chronic diseases represents 7 of the top 10 causes of death in the United States. They are defined broadly as conditions that last 1 year or more and require ongoing medical attention or limit activities of daily living or both. As we group, we would like to better understand the reasons behind the causes for Chronic Diseases. Going forward, this Project is designed to focus on the most valued skills used in Data Science in order to perform an Exploratory Analysis of the US Chrnoic Disease Indicators Dataset. 
+</div>
+<div class="jumbotron jumbotron-fluid">
+## Objective
+To use our chosen dataset to discover what are the most valued skills used in Data Science while working in a virtual team. <br/> To also practice collaboration knowledge sharing and data analysis and problem solving.
+</div>
+<div class="jumbotron jumbotron-fluid">
+## Approach
+For this project after having detailed discussion, we have decided to use US chronic disease indicators data proposed by Kleber (one of the team members).
+Using this dataset, we followed the following approach:
+  * Means of Communication: 
+    + We created a Whatsapp group where we can share documents and make a group   calls to discuss how we should do the project. 
+    + For the purpose of sharing code and rough drafts we have utilized Github and Rpubs . 
+  * Separate / delegate the work among the team members.
+  * Each individual do their part of the work.
+  * Combine everyone's work to make a final work.
+</div>
+<div class="jumbotron jumbotron-fluid">
+## Motivation
+Our motivation behind working as a team is due to the necessity of being able to effectively collaborate in a virtual environment . Working in a virtual team is essential  as it will enhance two of the basic data science soft skills (communiction and collaboration). Nowadays people prefer a more flexible work schedule and working from home due to the inherent desire of maintaing work and life balance. This project has enabled us to practice how to mantain work and life balance working in a virtual team.
+</div>
+<div class="jumbotron jumbotron-fluid">
+## Data information
+The Dataset has 124 indicators that are divided in 18 groups.
+</div>
+</div>
+<div class="jumbotron jumbotron-fluid">
+## Data source
+The data was downloaded from the Center For Diseases Control and Prevention [website](https://chronicdata.cdc.gov/Chronic-Disease-Indicators/U-S-Chronic-Disease-Indicators-CDI-/g4ie-h725) in csv format.
+</div>
+<div class="jumbotron jumbotron-fluid">
+## How to load Dataset
+We loaded the [data](https://catalog.data.gov/dataset/u-s-chronic-disease-indicators-cdi) into an R dataframe using MySQL RDBMS
+```{r}
+# 2. variables Settings
+db_user <- 'data607user'
+db_password <- 'pass'
+db_name <- 'uscdi'
+db_host <- '35.226.130.145' # localhost for local access
+db_port <- 3306
+# 3. Read data from db
+mydb <-  dbConnect(MySQL(), user = db_user, password = db_password,
+                 dbname = db_name, host = db_host, port = db_port)
+s <- paste0("SELECT DISTINCT YearStart, YearEnd, Topic, LocationAbbr FROM USChronicDiseaseIndicators WHERE LocationAbbr <> 'US';")
+rs <- dbSendQuery(mydb, s)
+df <-  fetch(rs, n = -1)
+on.exit(dbDisconnect(mydb))
+```
+This is a snapshot of the loaded dataset showing the indicator groups and the states connected with them.
+```{r}
+#uf <- df %>% gather(Year, n, YearStart:YearEnd)
+kable(df) %>%
+  kable_styling("striped", "hovered") %>%
+  scroll_box(height = "500px")
+```
+<br/>We also loaded the data using read.csv for the purpose of indicating missing values of empty strings with an identifier
+```{r}
+disease <- read.csv("USChronicDiseaseIndicators.csv", na.strings = "") #US_CDI.csv
+```
+</div>
+<div class="jumbotron jumbotron-fluid">
+## Overview of the data
+```{r}
+glimpse(disease)
+```
+<div class="alert alert-info" role="alert">
+There are <span class="label label-info badge">&nbsp; 519,718 &nbsp;</span> observations and  <span class="label label-info badge">&nbsp; 34 &nbsp;</span> variables. 
+</div>
+```{r}
+kable(head(disease, 10)) %>% kable_styling(font_size = 10) %>% scroll_box(height = "500px")
+```
+<br />
+```{r}
+kable(tail(disease, 10)) %>% kable_styling(font_size = 10) %>% scroll_box(height = "500px")
+```
+### Table of summary Statistics
+```{r}
+summary(disease)
+```
+### Visualization of missing value pattern. 
+From the data set we can visualize the missing value pattern. Read areas of the following graph indicated missing values. 
+```{r}
+missmap(disease, y.labels = F, y.at = F)
+```
+<br/>
+<div class="alert alert-info" role="alert">
+From the summary statistics and missing value plot we can see that the data set has <span class="label label-info badge">&nbsp; 37% &nbsp;</span> missing values and most of them are in the following variables.
+</div>
+```{r}
+names(-which(colMeans(is.na(disease))>0.1))
+```
+#### Count number of missing values in each column
+```{r}
+lapply(disease, function(x){sum(is.na(x))})
+```
+### &nbsp;
+</div>
+<div class="jumbotron jumbotron-fluid">
+<div class="alert alert-info" role="alert">
+## Tidying and Transformation
+</div>
+Drop columns that have more than <span class="label label-info badge">&nbsp; 10% &nbsp;</span> missing
+```{r}
+disease_no_miss <- disease[, -which(colMeans(is.na(disease)) > 0.1)]
+```
+After dropping the columns with more than <span class="label label-info badge">&nbsp; 10% &nbsp;</span> missing values we saw how much the dataset was reduced. There are only <span class="label label-info badge">&nbsp; 18 &nbsp;</span> variables left.
+```{r}
+dim(disease_no_miss)
+kable(head(disease_no_miss, 200)) %>%
+  kable_styling(bootstrap_options = "striped", font_size = 10) %>%
+  scroll_box(height = "500px")
+```
+Also here is another glimpse of the reduced dataset.
+```{r}
+glimpse(disease_no_miss)
+```
+</div>
+<div class="jumbotron jumbotron-fluid">
+## Exploratory Data Analysis
+### Top <span class="label label-info badge">&nbsp; 5 &nbsp;</span> location with chronic disease
+```{r}
+disease_no_miss %>%
+    count(LocationDesc)%>%
+    arrange(desc(n)) %>%
+    head(5) %>% kable() %>% kable_styling()
+```
+### Bottom <span class="label label-info badge">&nbsp; 5 &nbsp;</span> location with chronic disease
+```{r}
+disease_no_miss %>%
+    count(LocationDesc)%>%
+    arrange(-desc(n)) %>%
+    head(5) %>% kable() %>% kable_styling()
+```
+### Top <span class="label label-info badge">&nbsp; 5 &nbsp;</span> Data Source with chronic disease
+```{r}
+disease_no_miss %>%
+    count(DataSource)%>%
+    arrange(desc(n)) %>%
+    head(5) %>% kable() %>% kable_styling()
+```
+### Bottom <span class="label label-info badge">&nbsp; 5 &nbsp;</span> Data Source with chronic disease
+```{r}
+disease_no_miss %>%
+    count(DataSource)%>%
+    arrange(-desc(n)) %>%
+    head(5) %>% kable() %>% kable_styling()
+```
+### Bar plot of Chronic Diseases
+```{r}
+topic <- as.data.frame(table(disease_no_miss$Topic))
+ggplot(topic, aes(x=Var1, y =Freq, color = Var1))+
+  geom_bar(stat="identity") + ggtitle("Distribution of Chronic Disease Topics") + theme(legend.position = "none") + coord_flip() + xlab("Chronic Diseases")
+#barplot(table(disease_no_miss$Topic), main = "Distribution of Chronic Disease Topics")
+```
+<br/>From the bar plot we can see that most of the chronic diseases are the following top <span class="label label-info badge">&nbsp; 5 &nbsp;</span>
+```{r}
+disease_no_miss %>%
+    count(Topic)%>%
+    arrange(desc(n)) %>%
+    head(5) %>% kable() %>% kable_styling()
+```
+### Visualization of data value type
+```{r}
+data_value_type <- as.data.frame(table(disease_no_miss$DataValueType))
+ggplot(data_value_type, aes(x=Var1, y =Freq))+
+  geom_bar(stat="identity") + ggtitle("Distribution of Data Value Types") + theme(legend.position = "none") + coord_flip() + xlab("Data Value Types")
+```
+### Top data value types are the following
+```{r}
+disease_no_miss %>%
+    count(DataValueType)%>%
+    arrange(desc(n)) %>%
+    head(5) %>% kable() %>% kable_styling()
+```
+### Stratification Category
+```{r}
+stratificationCat <- as.data.frame(table(disease_no_miss$StratificationCategory1))
+ggplot(stratificationCat, aes(x=Var1, y =Freq, fill = Var1))+
+  geom_bar(stat="identity") + ggtitle("Classification of Observants") + theme(legend.position = "none")+ xlab("Categories")
+```
+* * *
+<div class="alert alert-info" role="alert">
+We decided to take a closer look at one of the top <span class="label label-info badge">&nbsp; 5 &nbsp;</span> causes of chronic diseases.
+</div>
+### <h4><span class="label label-info badge">&nbsp; Tobacco &nbsp;</span></h4>
+As mentioned earlier, Tobacco is one of the top Chronic Disease Indicator of preventable deaths in the US. Smoking leads to disease and disability and harms nearly every organ of the body. Among the other indicator groups, using Tobacco is related to *cancer, heart disease, stroke, lung diseases, diabetes, and chronic obstructive pulmonary disease (COPD), which includes emphysema and chronic bronchitis*. You can view further details [<span style="color:blue">here</span> ](https://www.cdc.gov/tobacco/data_statistics/fact_sheets/fast_facts/index.htm)
+```{r}
+mydb <-  dbConnect(MySQL(), user = db_user, password = db_password,
+                 dbname = db_name, host = db_host, port = db_port)
+s <- paste0("SELECT * FROM USChronicDiseaseIndicators WHERE Topic = 'Tobacco' AND LocationAbbr <> 'US';")
+rs <- dbSendQuery(mydb, s)
+tblTobacco <-  fetch(rs, n = -1)
+on.exit(dbDisconnect(mydb))
+Tobacco_df <- tblTobacco
+dim(Tobacco_df)
+kable(head(Tobacco_df, 20)) %>% kable_styling(bootstrap_options = "striped", full_width = T,  font_size = 10) %>%  scroll_box(height = "500px")
+```
+```{r}
+Tobacco_df <- Tobacco_df[!sapply(Tobacco_df, function(t) all(t == ""))]
+Tobacco_df <- Tobacco_df %>% select("YearEnd", "LocationAbbr", "Question", "DataValue", "Stratification1", ResponseID) %>% separate(ResponseID, c("Latitude", "Longitude"), sep = ",")
+#remove none digit elements from the observations in both longitude and latitude columns and then convert remaining characters to numeric
+Tobacco_df$Latitude <- as.numeric(unlist(str_remove(Tobacco_df$Latitude, "^[(]"))) 
+Tobacco_df$Longitude <- as.numeric(unlist(str_remove(Tobacco_df$Longitude, "[)]$")))
+#rename a few columns
+names(Tobacco_df)[c(1, 2, 5)] <- c("Year", "State", "Stratification")
+#If any cell for the row is empty then remove the row
+Tobacco_df <- Tobacco_df[!Tobacco_df$DataValue == "", ]
+```
+After making changes to the Tobacco dataframe, here is a preview to a more condensed form
+```{r}
+dim(Tobacco_df)
+kable(head(Tobacco_df, 100)) %>% kable_styling(font_size = 10) %>%  scroll_box(height = "500px")
+```
+<br />
+#### <span class="label label-info badge">Questions observed &nbsp;</span> 
+These are the type of questions looked at concerning Tobacco
+```{r}
+Questions <- unique(Tobacco_df$Question)
+kable(Questions) %>% kable_styling(font_size = 12) %>%  scroll_box(height = "300px")
+```
+<br/>A second Tobacco Dataframe was created because some of the DataValues are categorical (Yes, No) while others are numeric.The first Tobacco Dataframe now has 18681 obs with 7 variables.
+```{r}
+#separate categorical datavalues from numerical ones and place in a new df
+Tobacco_df2 <- subset(Tobacco_df, Tobacco_df$DataValue == c("Yes","No"))
+dim(Tobacco_df2)
+kable(Tobacco_df2) %>% kable_styling(font_size = 10) %>%  scroll_box(height = "300px")
+#remove those placed in Tobacco_df2 from Tobacco_df
+new_Tobacco_df <- Tobacco_df[!(Tobacco_df$DataValue %in% Tobacco_df2$DataValue), ]
+#convert the datavalue column to numeric
+new_Tobacco_df$DataValue <- as.numeric(new_Tobacco_df$DataValue)
+new_Tobacco_df$Year <- as.numeric(new_Tobacco_df$Year)
+dim(new_Tobacco_df)
+```
+<br />
+#### <span class="label label-info badge">Exploration of Tobacco &nbsp;</span> 
+```{r}
+ggplotly(ggplot(new_Tobacco_df, aes(x=State, y=Year, fill=Year)) +
+  geom_bar(stat="identity") +  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + theme(axis.text=element_text(size=6)) + ggtitle("Data collected Over the years for States Concerning Tobacco"))
+```
+<br/> Kansas had a lot to say as most reports came from that state. Among the states there seems to be heavier reports between the years of 2011 and 2014.
+```{r}
+new_Tobacco_df %>% filter(Question == c("Current smokeless tobacco use among youth", "Current cigarette smoking among youth")) %>%  ggplot(aes(x = Year, y = DataValue, fill = Question)) + geom_bar(stat = "identity", position = position_dodge())+ ggtitle("Youth (Grade 9-12) Using Tobacco Over the Years") +  scale_fill_discrete(labels = c("Smokeless Tobacco", "Smoke Tobacco"))
+```
+<br/>It is likely that if the youth is using smokeless Tobacco, then they'll smoke it too because of how close the numbers are. They are both harmful. Everyday, someone younger than 18 tries their first smoking of Tobacco.
+```{r}
+new_Tobacco_df %>% filter(!Stratification == "Overall") %>%  ggplot(aes(x= Stratification, y=Year, fill=Stratification)) +
+  geom_bar(stat="identity") +  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + theme(axis.text=element_text(size=6)) + transition_time(round(Year)) + labs(title = "Year: {frame_time}")
+```
+Based on this research, most of Tobacco customers are Male and the top race is White.
+### Amount of Tobacco Product Excise Tax?
+#### Increasing the price of tobacco discourages people from buying them, especially youths. With this structure put into place, improvements in health will get better in the long term. Majority of the states did not excise tax from the Tobacco product.
+```{r}
+Tobacco_df2 %>%  filter(Question == "Amount of tobacco product excise tax") %>% ggplot(aes(x = DataValue)) + geom_bar() 
+```
+<br />
+### States that allow stronger local tobacco control and prevention laws
+#### Map below shows which States allow stronger laws against Tobacco.
+```{r}
+Tobacco_df2 %>%  filter(Question == "States that allow stronger local tobacco control and prevention laws") %>% ggplot(aes(x = DataValue)) + geom_bar() 
+ggmap::register_google(key = "AIzaSyAPKYO8wG3mQUqSL6Ym4HeSIjkZmCwwVP8")
+YesT<- Tobacco_df2 %>%  filter(Question == "States that allow stronger local tobacco control and prevention laws" & DataValue == "Yes")
+leaflet(options = leafletOptions(minZoom = 2, maxZoom = 8)) %>% 
+  addProviderTiles(providers$Esri) %>% 
+  setView(lng = -100.166666, lat = 48.166666, zoom = 4) %>% 
+  addCircleMarkers(lng=YesT$Longitude, lat=YesT$Latitude, radius = 5)
+```
+<br />
+<div class="jumbotron jumbotron-fluid">
+## Conclusion
+> To conclude, team work is *very* important, especially in Data Science. Real world data sets are often messy and have lots of missing values. Data does not convert correctly the first time, file is incomplete or invalid an the list goes on. However all of these problems are solvable but can be time consuming. In the end, it is all done to get the results needed to present useful information to make better decisions.
+With the Data Science skills used such as communication and collaboration to carry out an exploratory analysis of this project, we were better able to understand the dataset. Chronic Diseases are a major concern in the USA. We have found that Diabetes, Chronic Obstructive Pulmonary Disease, Cardiovascular Disease, Arthritis are the most occurring chronic diseases. Arizona,Florida,Iowa have most chronic disease while Guam, Virgin Islands have least disease possibly because they are smaller.
+The dataset is missing several necessary details but with our practiced data science skills we were able to grasp a huge amount of information and gain a better insight of the dataset.   
+</div>
+<br />
+<div class="jumbotron jumbotron-fluid">
+  <div class="btn btn-default btn-block">
+  <!-- <h3>DATA 607 Project 3 Most Valued Data Science Skills </h3> -->
+  <p class="lead">RPUBS.COM, SQL, R SCRIPTS <br />AND RMARKDOWN FILES UPLOADED ON GITHUB REPO </p> 
+  
+  </div>
+<!-- </div> -->
+<!-- <div class="jumbotron jumbotron-fluid"> -->
+  <div class="container">
+  <div class="btn btn-info btn-block">
+  
+  <hr class="my-4">
+  
+  <div>
+  
+  <a class="label label-default" href="#" target="_blank" role="button">
+  MIA SIRACUSA</a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <a class="label label-default" href="http://rpubs.com/miasiracusa" role="button">RPUBS</a>
+  <a class="label label-default" href="https://github.com/miasiracusa/Data607" role="button">GITHUB</a>
+  <br /><br />
+    <a class="label label-default" href="#" target="_blank" role="button">
+  JAVERN WILSON</a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <a class="label label-default" href="http://rpubs.com/javernw/jwDATA607wk8Proj3" role="button">RPUBS</a>
+  <a class="label label-default" href="https://github.com/javernw/DATA607GroupProjects" role="button">GITHUB</a>
+  <br /><br />
+    <a class="label label-default" href="#" target="_blank" role="button">
+  YOHANNES DEBOCH </a> &nbsp;&nbsp;
+  <a class="label label-default" href="http://rpubs.com/jonygeta/data607projectbycunyverse" role="button">RPUBS</a>
+  <a class="label label-default" href="https://github.com/jonygeta/Data-607-Data-Science-Skills-Project-" role="button">GITHUB</a>
+  <br /><br />
+  <a class="label label-default" href="https://www.linkedin.com/in/kleberperez/" target="_blank" role="button">KLEBER PEREZ</a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <a class="label label-default" href="http://rpubs.com/kleberperez/477939" role="button">RPUBS</a>
+  <a class="label label-default" href="https://github.com/kleberperez1/CUNY-SPS-Data607-Project3" role="button">GITHUB</a>
+  
+  </div>
+  </div>
+  </div>
+</div>
+</div> 
+</div>
+  <br />
+  <br />
+> *Please email to * <a href="mailto:teamcunyverse@spsmail.cuny.edu">teamcunyverse</a> *for any suggestion.*
+<footer class="border-top text-muted fixed-bottom">
+        DATA 607 Project 3 - MSDS 2019 Program.
+</footer>
+<br />
+<br />
+<br />
+\textbf{Text ignored: END of other links}
