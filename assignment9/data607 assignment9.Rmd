@@ -1,0 +1,18 @@
+---
+title: "msiracusa_HW9"
+output: html_document
+---
+DATA 607
+
+Load Packages
+``` {r load}
+library(jsonlite)
+library(knitr)
+library(curl)
+```
+I searched for hardcover fiction books on the NYT books list.
+```{r api}
+url <- curl(url = "https://api.nytimes.com/svc/books/v3/lists.json?list-name=hardcover-fiction&api-key=iVhtPRPmz4DRzhywxFicIrAeuGMRYQo9")
+nyt_df <- fromJSON(url)
+nyt_df
+```
