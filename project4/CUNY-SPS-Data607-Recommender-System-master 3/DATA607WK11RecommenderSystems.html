@@ -1,0 +1,536 @@
+<html>
+
+<head>
+<style type="text/css">
+.inline {
+  background-color: #f7f7f7;
+  border:solid 1px #B0B0B0;
+}
+.error {
+	font-weight: bold;
+	color: #FF0000;
+}
+.warning {
+	font-weight: bold;
+}
+.message {
+	font-style: italic;
+}
+.source, .output, .warning, .error, .message {
+	padding: 0 1em;
+  border:solid 1px #F7F7F7;
+}
+.source {
+  background-color: #f5f5f5;
+}
+.left {
+  text-align: left;
+}
+.right {
+  text-align: right;
+}
+.center {
+  text-align: center;
+}
+.hl.num {
+  color: #AF0F91;
+}
+.hl.str {
+  color: #317ECC;
+}
+.hl.com {
+  color: #AD95AF;
+  font-style: italic;
+}
+.hl.opt {
+  color: #000000;
+}
+.hl.std {
+  color: #585858;
+}
+.hl.kwa {
+  color: #295F94;
+  font-weight: bold;
+}
+.hl.kwb {
+  color: #B05A65;
+}
+.hl.kwc {
+  color: #55aa55;
+}
+.hl.kwd {
+  color: #BC5A65;
+  font-weight: bold;
+}
+</style>
+<title>DATA607 Recommender System</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-teal.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<style>
+.column-left{
+  float: left;
+  width: 4%;
+  text-align: center;
+}
+.column-center{
+  display: inline-block;
+  width: 96%;
+  text-align: left;
+}
+ul {
+  display: block;
+  list-style-type: disc;
+  margin-top: 1em;
+  margin-bottom: 1 em;
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 40px;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th, td {
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even){background-color: #f2f2f2}
+
+th {
+  background-color: teal; 
+  color: white;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<br />
+
+<div class="w3-sidebar w3-collapse w3-white w3-animate-left w3-large" style="z-index:3;width:300px;" id="mySidebar">
+
+<div class="w3-bar w3-black w3-center">
+  <a class="w3-bar-item w3-button w3-hover-teal" style="width:33.33%" href="javascript:void(0)" onclick="openNav('nav01')">
+  <i class="fa fa-bars w3-xlarge"></i></a>
+  <a href="https://www.youtube.com/user/CUNYSPS" class="w3-bar-item w3-button" style="width:33.33%" target="_blank">
+  <img src="https://sps.cuny.edu/sites/all/themes/cuny/assets/img/icon-youtube.png" ></a>
+  <a class="w3-bar-item w3-button w3-hover-teal" style="width:33.33%" href="javascript:void(0)" onclick="openNav('nav03')">
+  <i class="fa fa-bars w3-xlarge"></i></a>
+</div>
+
+<div id="nav01" class="w3-bar-block">
+  <a class="w3-button w3-hover-teal w3-hide-large w3-large w3-right" href="javascript:void(0)" onclick="w3_close()">×</a>
+  <!-- <a class="w3-bar-item w3-button w3-border-bottom w3-large" href="#"><img src="https://www.rstudio.com/wp-content/uploads/2016/09/RStudio-Logo-Blue-Gray-125.png" style="width:65%;"></a> -->
+    <a class="w3-bar-item w3-button w3-border-bottom w3-large" href="https://sps.cuny.edu/" target="_blank"><img src="https://sps.cuny.edu/sites/all/themes/cuny/assets/img/header_logo.png" style="width:80%; padding-top: 10px; padding-bottom: 10px; height: 72px;"></a>
+  <a class="w3-bar-item w3-button w3-hover-teal" href="#1">Netflix</a>
+  <a class="w3-bar-item w3-button w3-hover-teal" href="#2">Scenario Design</a>
+  <a class="w3-bar-item w3-button w3-hover-teal" href="#3">How Netflix Recommender system works</a>
+  <a class="w3-bar-item w3-button w3-hover-teal" href="#4">Reverse Engineering</a>
+  <a class="w3-bar-item w3-button w3-hover-teal" href="#5">Recommendations</a>
+</div>
+
+<div id="nav02">
+  <a class="w3-bar-item w3-button" target="_blank" href="tryw3css_templates_black.htm"><img src="img_demo_black.png" style="width:100%;"></a>
+  <a class="w3-bar-item w3-button" target="_blank" href="tryw3css_examples_album.htm"><img src="img_demo_summer.jpg" style="width:100%;"></a>
+  <a class="w3-bar-item w3-button" target="_blank" href="tryw3css_examples_blog.htm"><img src="img_demo_blog.jpg" style="width:100%;"></a>
+</div>
+
+
+<div id="nav03" class="w3-bar-block">
+  <a class="w3-button w3-hover-teal w3-hide-large w3-large w3-right" href="https://sps.cuny.edu/" target="_blank"><img src="https://sps.cuny.edu/sites/all/themes/cuny/assets/img/header_logo.png" onclick="w3_close()">×</a>
+  <!-- <a class="w3-bar-item w3-button w3-border-bottom w3-large" href="#"><img src="https://www.rstudio.com/wp-content/uploads/2016/09/RStudio-Logo-Blue-Gray-125.png" style="width:65%;"></a> -->
+    <a class="w3-bar-item w3-button w3-border-bottom w3-large Rlogo" href="https://www.rstudio.com/" target="_blank">
+    <img src="https://www.rstudio.com/wp-content/uploads/2016/09/RStudio-Logo-Blue-Gray-125.png" 
+          style="width:80%; padding-top: 10px; padding-bottom: 10px; height: 72px;"/></a>
+  <a class="w3-bar-item w3-button w3-hover-teal" href="#1">Javern Wilson</a>
+  <a class="w3-bar-item w3-button w3-hover-teal" href="#2">Mia Siracusa</a>
+  <a class="w3-bar-item w3-button w3-hover-teal" href="#3">Kleber Perez</a>
+  <a class="w3-bar-item w3-button w3-hover-teal" href="#5">Yohannes Deboch</a>
+</div>
+</div>
+
+<div class="w3-overlay w3-hide-large" onclick="w3_close()" style="cursor:pointer" id="myOverlay"></div>
+
+<div class="w3-main" style="margin-left:300px;"> 
+
+<div class="w3-top w3-theme w3-large w3-hide-large">
+  <i class="fa fa-bars w3-button w3-teal w3-xlarge" onclick="w3_open()"></i>
+</div>
+
+<header class="w3-container w3-theme  w3-center">
+
+  <a class="w3-bar-item w3-button w3-hover-teal w3-xxlarge w3-padding" href="#" >
+    <span class="w3-large w3-padding w3-hover-sand">DATA607 WK11: RECOMMENDER SYSTEM FOCUSED ON NETFLIX</span>
+  </a>
+  <a class="w3-bar-item w3-button w3-hover-teal w3-xxlarge w3-padding" href="#" >
+    <span class="w3-large w3-padding w3-hover-sand">APRIL 8, 2019</span>
+  </a>
+  <br />
+  
+</header>
+
+
+<div class="w3-container w3-padding-large w3-light-grey w3-justify w3-opacity">
+  <br />
+  
+  <table class="w3-table-all w3-hoverable">
+  <tr>
+    <th>TEAM CUNYVERSE</th>
+    <th></th>
+    <th></th>
+  </tr>
+  <tr>
+    <td>Javern Wilson</td>
+    <td>
+      <a href="http://rpubs.com/javernw/jwDATA607wk11Asgmt" target="_blank">
+        <span class="w3-large w3-padding w3-hover-sand">rpubs</span>
+      </a>
+    </td>
+    <td>
+      <a href="https://github.com/javernw/JWCUNYAssignments/blob/master/DATA607%20WK11%20Recommender%20Systems.Rmd" 
+          target="_blank"><span class="w3-large w3-padding w3-hover-sand">GitHub</span>
+      </a>      
+    </td>
+  </tr>
+  <tr>
+    <td>Mia Siracusa</td>
+    <td>
+      <a href="http://rpubs.com/javernw/jwDATA607wk11Asgmt" target="_blank">
+        <span class="w3-large w3-padding w3-hover-sand">rpubs</span>
+      </a>
+    </td>
+    <td>
+      <a href="https://github.com/javernw/JWCUNYAssignments/blob/master/DATA607%20WK11%20Recommender%20Systems.Rmd" 
+          target="_blank"><span class="w3-large w3-padding w3-hover-sand">GitHub</span>
+      </a>      
+    </td>
+  </tr>
+  <tr>
+    <td>Kleber Perez</td>
+    <td>
+      <a href="http://rpubs.com/kleberperez/486364" target="_blank">
+        <span class="w3-large w3-padding w3-hover-sand">rpubs</span>
+      </a>
+    </td>
+    <td>
+      <a href="https://github.com/kleberperez1/CUNY-SPS-Data607-Recommender-System" 
+          target="_blank"><span class="w3-large w3-padding w3-hover-sand">GitHub</span>
+      </a>      
+    </td>
+  </tr>
+  <tr>
+    <td>Yohannes Deboch</td>
+    <td>
+      <a href="http://rpubs.com/jonygeta/486099" target="_blank">
+        <span class="w3-large w3-padding w3-hover-sand">rpubs</span>
+      </a>
+    </td>
+    <td>
+      <a href="https://github.com/jonygeta/Data607week11discussionexercise" 
+          target="_blank"><span class="w3-large w3-padding w3-hover-sand">GitHub</span>
+      </a>      
+    </td>
+  </tr>
+</table>
+  <br />
+  
+</div>
+
+<div class="w3-white"><br /><br /></div>
+
+<div id="1" class="w3-container w3-padding-large w3-section w3-light-grey">
+  <h1 class="">Assignment and Discussion Board</h1> 
+  <p class="">
+    Report created using R Markdown file, and discussion thread with link to the GitHub repo.
+  </p>
+  
+  <!-- Netflix -->
+  <p class="w3-large">
+    <a class="w3-button w3-theme w3-large w3-padding w3-hover-sand" href="#">Netflix</a>
+  </p>
+  <div class="w3-code cssHigh w3-hover-sand">
+    <span class="w3-text-grey w3-text-dark-grey">
+      We would like to start by defing what Recommender System means. A recommender system or a recommendation system 
+      (sometimes replacing "system" with a synonym such as platform or engine) is a subclass of information filtering 
+      system that seeks to predict the "rating" or "preference" a user would give to an item. Recommender systems are 
+      utilized in a variety of areas including movies, music, news, books, research articles, search queries, social 
+      tags, and products in general.
+    <br /> <br />
+      In this section we will be analyzing the recommender sytem provided by Netflix. The Netflix business is a subscription 
+      service model that offers personalized recommendations, to help subscribers find shows and movies of interest. 
+      For this purpose they have created a proprietary, complex recommendations system. In most cases, these recommendations 
+      receives the highest hit which are then personalized to fit your preferences. They are driven by learning algorithms 
+      which is why each user's recommendations are different. Having a better set of recommendations makes subscribers to 
+      easly browse through the kind of content they like to watch.
+    </span>
+  </div>
+
+  <!-- END Netflix -->
+
+</div>
+
+<img src="suggested.png" alt="Example of Netflix Suggestion Tab">
+
+<div class="w3-white"><br /><br /></div>
+
+<div id="2" class="w3-container w3-padding-large w3-section w3-light-grey">
+
+  <!-- Scenario Design -->
+  <p class="w3-large">
+    <a class="w3-button w3-theme w3-large w3-padding w3-hover-sand" href="#">Scenario Design</a>
+  </p>
+  <div class="w3-code cssHigh w3-hover-sand">
+    <span class="w3-text-grey w3-text-dark-grey">
+      Whenever a subscriber accesses the Netflix service, their recommendations system strives to help find a show or 
+      movie to enjoy with minimal effort. The system estimates the likelihood that the subscriber will watch a particular 
+      title in their catalog based on a number of factors including: the subscribers interactions with theor service 
+      (such as viewing history and how the customer rated other titles), other members with similar tastes and preferences 
+      on ther service, and information about the titles, such as their genre, categories, actors, release year, etc.
+    <br /> <br />
+      In addition to knowing what you the subscriber have watched on Netflix, to best personalize the recommendations they 
+      also look at things like: the time of day the subscriber watches, the devices the subscriber is watching Netflix on 
+      and the duration as well.
+    </span>
+    <br /> <br />
+    
+<img src="trending.png" alt="Example of Netflix Trending Tab"> 
+    
+    <br /> <br />
+    <a class="w3-button w3-theme w3-large w3-padding w3-hover-sand" href="#">1. Who are your target customers?</a> <br />
+    <span class="w3-text-grey w3-text-dark-grey">
+      Netflix is an internet streaming software which allows you to watch content through any internet connected device 
+      which include smart TVs, smartphones, tablets, game consoles etc. Netflix has 139 million subscribers globally. 
+      Target 
+      <a class="w3-hover-teal" 
+          href="https://www.business2community.com/marketing/look-new-target-audience-netflix-subscribers-01813457" 
+          target="_blank">customers</a> would be:
+    </span>
+    <ul class="w3-text-grey w3-text-dark-grey">
+      <li>Anyone who is up to date with technology</li>
+      <li>People who do not have time to watch live tv</li>
+      <li>People who like to binge watch tv shows and movies</li>
+      <li>Households with kids</li>
+    </ul>
+
+    <a class="w3-button w3-theme w3-large w3-padding w3-hover-sand" href="#">2. What are their key goals?</a> <br />
+    <span class="w3-text-grey w3-text-dark-grey">
+      To get as much subscribers by improving the customer experience of their entertainment services. 
+      They try to get as much people to watch their content with unlimited hours.
+    </span>
+    <br /> <br />
+    
+    <a class="w3-button w3-theme w3-large w3-padding w3-hover-sand" href="#">3. How can you help them accomplish those goals?</a>
+    <br />
+    <span class="w3-text-grey w3-text-dark-grey">
+      As this assignment is based on Recommender systems, providing insights on how to improve their recommendations 
+      as this is the best way to better understand their customers indirectly.
+    </span>
+    
+  </div>
+
+</div>
+<!-- END -->
+
+<div class="w3-white"><br /><br /></div>
+
+<div id="3" class="w3-container w3-padding-large w3-section w3-light-grey">
+
+  <!-- How Netflix Recommender system works -->
+  <p class="w3-large">
+    <a class="w3-button w3-theme w3-large w3-padding w3-hover-sand" href="#">How Netflix Recommender system works</a>
+  </p>
+  <div class="w3-code cssHigh w3-hover-sand">
+    <span class="w3-text-grey w3-text-dark-grey">
+      Netflix recommender system is based on collaborative filtering therefore they need a certain amount of data to 
+      understand it before making recommendations. When users sign up, the software usaually require the individual to 
+      choose a few shows to jump start their recommendations. They 
+      <a class="w3-hover-teal" 
+          href="https://help.netflix.com/en/node/100639" 
+          target="_blank">learn</a> 
+      about the customer's preference based on:
+    </span>
+    <ul class="w3-text-grey w3-text-dark-grey">
+      <li>How customers interact with the servie</li>
+      <li>Group customers in clusters of people with similar tastes and preferences</li>
+      <li>Information based on genre, actors, titles and the like</li>
+    </ul>
+    <span class="w3-text-grey w3-text-dark-grey">
+      Also, with their ratings system, every time subscriber leaves a rating, they are learning what the subscriber enjoys.
+    </span>
+    <br /> 
+    
+  </div>
+
+</div>
+<!-- END -->
+
+<div class="w3-white"><br /><br /></div>
+
+<div id="4" class="w3-container w3-padding-large w3-section w3-light-grey">
+
+  <!-- How Netflix Recommender system works -->
+  <p class="w3-large">
+    <a class="w3-button w3-theme w3-large w3-padding w3-hover-sand" href="#">Reverse Engineering</a>
+  </p>
+  <div class="w3-code cssHigh w3-hover-sand">
+    <ul class="w3-text-grey w3-text-dark-grey">
+      <li>Netflix recommendations are heavily skewed towards what you are currently watching hence you get 
+          stuck in a recommendation rut or lack variety of choices. However, the more you watch, the more your 
+          suggested content becomes relevant
+      </li>
+      <li>Recommendations get diluted when multiple people are using the same profiles</li>
+      <li>To show your approval, it is either a "thumbs up" or "thumbs down"</li>
+    </ul>
+
+  </div>
+
+</div>
+<!-- END -->
+
+<div class="w3-white"><br /><br /></div>
+
+<div id="5" class="w3-container w3-padding-large w3-section w3-light-grey">
+
+  <!-- How Netflix Recommender system works -->
+  <p class="w3-large">
+    <a class="w3-button w3-theme w3-large w3-padding w3-hover-sand" href="#">Recommendations</a>
+  </p>
+  <div class="w3-code cssHigh w3-hover-sand">
+    <span class="w3-text-grey w3-text-dark-grey">
+      Overall, we are satisfied with Netflix's recommendation system .Could there be another way to increase engagement, 
+      besides design tricks, algorithms, and inter-episode ads? We believe Netflix should put its users back behind the wheel.
+      <br /> <br />
+      Here are a few ideas:
+    </span>
+    <ul class="w3-text-grey w3-text-dark-grey">
+      <li>Due to the current trend on the anyone re-watching every movie or show that they previously watched is very 
+          slim will affect the efficiency of the sytem as it will lead the user's browsing experience less optimal, 
+          and as solution for this we recommend removing it or moving the list to the bottom would be good
+      </li>
+      <li>Make it easy for people to share titles right in the platform or on social media. Offer a smarter way to 
+          dive in and explore content on your own
+      </li>
+      <li>A good search engine with listed results would be ideal,with filters like "Added date," "Minimum user rating," 
+          "Director," or "Actor/Actress."
+      </li>
+    </ul>
+    
+  </div>
+
+</div>
+<!-- END -->
+
+<div class="w3-white"><br /><br /></div>
+
+<div class="w3-container w3-padding-large w3-light-grey w3-justify w3-opacity">
+  <br />
+  
+  <table class="w3-table-all w3-hoverable">
+  <tr>
+    <th>TEAM CUNYVERSE</th>
+    <th></th>
+    <th></th>
+  </tr>
+  <tr>
+    <td>Javern Wilson</td>
+    <td>
+      <a href="http://rpubs.com/javernw/jwDATA607wk11Asgmt" target="_blank">
+        <span class="w3-large w3-padding w3-hover-sand">rpubs</span>
+      </a>
+    </td>
+    <td>
+      <a href="https://github.com/javernw/JWCUNYAssignments/blob/master/DATA607%20WK11%20Recommender%20Systems.Rmd" 
+          target="_blank"><span class="w3-large w3-padding w3-hover-sand">GitHub</span>
+      </a>      
+    </td>
+  </tr>
+  <tr>
+    <td>Mia Siracusa</td>
+    <td>
+      <a href="http://rpubs.com/javernw/jwDATA607wk11Asgmt" target="_blank">
+        <span class="w3-large w3-padding w3-hover-sand">rpubs</span>
+      </a>
+    </td>
+    <td>
+      <a href="https://github.com/javernw/JWCUNYAssignments/blob/master/DATA607%20WK11%20Recommender%20Systems.Rmd" 
+          target="_blank"><span class="w3-large w3-padding w3-hover-sand">GitHub</span>
+      </a>      
+    </td>
+  </tr>
+  <tr>
+    <td>Kleber Perez</td>
+    <td>
+      <a href="http://rpubs.com/kleberperez/486364" target="_blank">
+        <span class="w3-large w3-padding w3-hover-sand">rpubs</span>
+      </a>
+    </td>
+    <td>
+      <a href="https://github.com/kleberperez1/CUNY-SPS-Data607-Recommender-System" 
+          target="_blank"><span class="w3-large w3-padding w3-hover-sand">GitHub</span>
+      </a>      
+    </td>
+  </tr>
+  <tr>
+    <td>Yohannes Deboch</td>
+    <td>
+      <a href="http://rpubs.com/jonygeta/486099" target="_blank">
+        <span class="w3-large w3-padding w3-hover-sand">rpubs</span>
+      </a>
+    </td>
+    <td>
+      <a href="https://github.com/jonygeta/Data607week11discussionexercise" 
+          target="_blank"><span class="w3-large w3-padding w3-hover-sand">GitHub</span>
+      </a>      
+    </td>
+  </tr>
+</table>
+  <br />
+  
+</div>
+
+
+</div>
+
+<div class="w3-white"><br /><br /></div>
+<div class="w3-white"><br /><br /></div>
+<div class="w3-white"><br /><br /></div>
+<div class="w3-white"><br /><br /></div>
+
+
+<script>
+function w3_open() {
+  document.getElementById("mySidebar").style.display = "block";
+  document.getElementById("myOverlay").style.display = "block";
+}
+
+function w3_close() {
+  document.getElementById("mySidebar").style.display = "none";
+  document.getElementById("myOverlay").style.display = "none";
+}
+
+openNav("nav01");
+function openNav(id) {
+  document.getElementById("nav01").style.display = "none";
+  document.getElementById("nav02").style.display = "none";
+  document.getElementById("nav03").style.display = "none";
+  document.getElementById(id).style.display = "block";
+}
+</script>
+
+<script src="https://www.w3schools.com/lib/w3codecolor.js"></script>
+
+<script>
+w3CodeColor();
+</script>
+
+
+</body>
+</html>
