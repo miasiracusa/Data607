@@ -1,0 +1,55 @@
+---
+title: "data 607 wk 13"
+output: html_document
+---
+``` {r set up}
+#library(mongolite)
+library(dbConnect)
+library(RMySQL)
+```
+For this assignment, you should take information from a relational database and migrate it to a NoSQL database of your own choosing. 
+For the relational database, you might use the flights database, the tb database, the "data skills" database your team created for Project 3, or another database of your own choosing or creation.
+For the NoSQL database, you may use MongoDB (which we introduced in week 7), Neo4j, or another NoSQL database of your choosing.
+Your migration process needs to be reproducible.  R code is encouraged, but not required.  You should also briefly describe the advantages and disadvantages of storing the data in a relational database vs. your NoSQL database.
+
+I will be using the relational database team cunyverse created for our final project.
+
+```{r rdb}
+url <- "https://raw.githubusercontent.com/miasiracusa/Data607/master/finalproject/Air_Quality.csv"
+airquality <- read.csv(url)
+names(airquality) <- c("Indicator Data ID", "Indicator ID", "Type of Toxin", "Unit of measurement", "Type of Location", "Location ID", "Location", "Year", "Measurement")
+head(airquality)
+```
+
+
+Since my computer is so old, I always always always have issues with MySQL, so I needed to make part of my code comments in order to knit it. My Rstudio also doesn't come with mongolite or the neo4j package.
+```{r sql}
+db_user <- 'root'
+db_password <- 'password'
+db_name <- 'airquality'
+db_host <- '127.0.0.1' # for local access
+db_port <- 3306
+
+drv <- dbDriver("MySQL")
+
+# creating connection
+connect <- dbConnect(drv, user = db_user, password = db_password, dbname = db_name, host = db_host, port = db_port)
+
+if (dbExistsTable(connect, "airquality"))
+    dbRemoveTable(connect, "airquality")
+
+#dbWriteTable(connect, name = "airquality", value = airquality, append = T,  row.names = FALSE)
+#the above is a comment because I am getting the error "Error in .local(conn, statement, ...) : 
+# could not run statement: The used command is not allowed with this MySQL version" and I have a very old computer, so I cannot help this issue/cannot update
+```
+
+```{r mongo}
+#make connection
+##mongoDB_Movies = mongo(collection = "airquality", db = "airquality")
+#input data
+##my_collection$insert(imdb_movies)
+```
+
+Relational databases have predefined schema, and are beneficial for representing relationships within data. Non-relational databases have dynamic schema and ar beneficial for unstructed or changing data.
+
+
