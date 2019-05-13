@@ -1,0 +1,452 @@
+---
+title: "DATA607 Final Project: Air Quality and Rent Prices"
+author: "Cunyverse: Javern Wilson, Mia Siracusa, Kleber Perez, Yohannes Deboch"
+date: "May 8, 2019"
+output: 
+  html_document:
+    toc: true
+    code_folding: show
+    toc_float:
+      collapsed: false
+      smooth_scroll: false
+    theme: journal
+    highlight: kate
+---
+
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(reshape2)
+library(kableExtra)
+library(rvest)
+library(XML)
+library(RCurl)
+library(tm)
+library(DT)
+library(pdftools)
+library(gridExtra)
+```
+
+## Introduction
+
+ 
+Air quality serves as an important indicator for monitoring progress toward achieving a sustainable and healthy future. Enhancements in air quality are a direct indication of achievements in sustainable energy, urban development, and infrastructure. On the contrary, exposure to dangerous air pollutants can lead to chronic diseases, such as asthma, especially in children. We are interested in exploring the relationship between air quality and rent prices of NYC neighborhoods.
+
+
+
+## Import and Clean
+
+At first the [Air_Quality](https://github.com/javernw/DATA607GroupProjects/blob/master/Final%20Project/Air_Quality.csv) data is read into R. Any rows that are not completed is removed. For this project, we will only focus on the boroughs and the neighborhoods within. UHF42 (United Hospital Fund) consist of 42 neighborhoods ajoining zip codes areas, designated to approximate New York City Community Planning Districts.
+
+```{r}
+air_quality <- read.csv("https://raw.githubusercontent.com/miasiracusa/Data607/master/finalproject/Air_Quality.csv", header = T, stringsAsFactors = F) #Air_Quality.csv
+air_q <- air_quality #use a secondary variable for analysis
+air_q <- air_q[complete.cases(air_q), ] #only keep full rows
+#columns not needed for analysis is removed
+air_q <- air_q %>%  select(-indicator_data_id, -indicator_id, -year_description)
+air_q <- filter(air_q, geo_type_name == c("UHF42"))
+```
+
+
+## Scraping
+
+In order to match rent prices to the respective neighborhoods, we decided to get the data from [Apartments.com](https://www.apartments.com/). The prices taken from the website differs everyday so the information scraped were collected and stored into .CSV files for accuracy and stability.
+
+#### Collect Zipcode and Matching Neighborhood with [UHF42 Code](https://www.health.ny.gov/statistics/cancer/registry/appendix/neighborhoods.htm)
+```{r}
+link <- "https://www.health.ny.gov/statistics/cancer/registry/appendix/neighborhoods.htm"
+zip_table <- link %>% read_html() %>% html_nodes("table") %>% html_table(fill = T) %>% data.frame(stringsAsFactors = F)
+#add UHF42 Neighborhood code (Ncode) column
+zip_table$NCode <- c(105, 103, 106, 107, 101, 102, 104, 203, 209, 206, 208, 210, 202, 207, 204, 201, 205, 211, 302, 306, 303, 307, 308, 310, 309, 305, 304, 301, 404, 403, 406, 408, 401, 405, 410, 409, 407, 402, 501, 503, 502, 504)
+#re-arrange columns
+zip_table <- zip_table[, c(1,4,2,3)]
+kable(zip_table) %>% kable_styling(font_size = 10) %>% scroll_box(height = "500px", width = "350px")
+```
+
+#### Collect Rent Prices for each Neighborhood and Borough from Apartments.com
+
+```{r}
+### Bronx
+bronx_url<-paste0("https://www.apartments.com/bronx-ny/", 1:20)
+bronx <- lapply(bronx_url,
+                function(pg){
+                  pg %>% read_html() %>% 
+                    html_nodes("#placards") %>% 
+                    html_text() %>%
+                    str_extract_all("\\$\\d.\\d+")
+                })
+bronx <- parse_number(unlist(bronx))
+Bxurl1 <- "https://www.apartments.com/mount-hope-bronx-ny/"
+central_bronx <- Bxurl1 %>% read_html() %>%  html_node("#placards") %>%
+    html_text() %>% str_extract_all("\\$\\d.\\d+") %>% unlist() %>% parse_number()%>% mean()
+Bxurl2 <- "https://www.apartments.com/fordham-heights-bronx-ny/"
+fordham <- Bxurl2 %>% read_html() %>%  html_node("#placards") %>%
+    html_text() %>% str_extract_all("\\$\\d.\\d+") %>% unlist() %>% parse_number()%>% mean()
+Bxurl3 <- "https://www.apartments.com/highbridge-bronx-ny/"
+high_bridge <- Bxurl3 %>% read_html() %>%  html_node("#placards") %>%
+    html_text() %>% str_extract_all("\\$\\d.\\d+") %>% unlist() %>% parse_number()%>% mean()%>% mean()
+Bxurl4 <- "https://www.apartments.com/mount-hope-bronx-ny/"
+huntspoint <- Bxurl4 %>% read_html() %>%  html_node("#placards") %>%
+    html_text() %>% str_extract_all("\\$\\d.\\d+") %>% unlist() %>% parse_number()%>% mean()
+Bxurl5 <- "https://www.apartments.com/kingsbridge-bronx-ny/"
+kingsbridge <- Bxurl5 %>% read_html() %>%  html_node("#placards") %>%
+    html_text() %>% str_extract_all("\\$\\d.\\d+") %>% unlist() %>% parse_number()%>% mean()
+Bxurl6 <- "https://www.apartments.com/mount-hope-bronx-ny/"
+north_eastbx <- Bxurl6 %>% read_html() %>%  html_node("#placards") %>%
+    html_text() %>% str_extract_all("\\$\\d.\\d+") %>% unlist() %>% parse_number()%>% mean()
+Bxurl7 <- "https://www.apartments.com/parkchester-bronx-ny/"
+south_eastbx <- Bxurl7 %>% read_html() %>%  html_node("#placards") %>%
+    html_text() %>% str_extract_all("\\$\\d.\\d+") %>% unlist() %>% parse_number()%>% mean()
+####Brooklyn
+brooklyn_url<-paste0("https://www.apartments.com/brooklyn-ny/", 1:20)
+brooklyn <- lapply(brooklyn_url,
+                function(pg){
+                  pg %>% read_html() %>% 
+                    html_nodes("#placards") %>% 
+                    html_text() %>%
+                    str_extract_all("\\$\\d.\\d+")
+                })
+brooklyn <- parse_number(unlist(brooklyn))
+Burl1 <- "https://www.apartments.com/crown-heights-brooklyn-ny/"
+central_brooklyn <- Burl1 %>% read_html() %>%  html_node("#placards") %>%
+    html_text() %>% str_extract_all("\\$\\d.\\d+") %>% unlist() %>% parse_number() %>% mean()
+Burl2 <- "https://www.apartments.com/southwest-brooklyn-brooklyn-ny/"
+sw_brooklyn <- Burl2 %>% read_html() %>%  html_node("#placards") %>%
+    html_text() %>% str_extract_all("\\$\\d.\\d+") %>% unlist() %>% parse_number()%>% mean()
+Burl3 <- "https://www.apartments.com/borough-park-brooklyn-ny/"
+borough_park <- Burl3 %>% read_html() %>%  html_node("#placards") %>%
+    html_text() %>% str_extract_all("\\$\\d.\\d+") %>% unlist() %>% parse_number()%>% mean()
+Burl4 <- "https://www.apartments.com/flatlands-brooklyn-ny/"
+canarsie_flatlands <- Burl4 %>% read_html() %>%  html_node("#placards") %>%
+    html_text() %>% str_extract_all("\\$\\d.\\d+") %>% unlist() %>% parse_number()%>% mean()
+Burl5 <- "https://www.apartments.com/coney-island-brooklyn-ny/"
+south_brooklyn <- Burl5 %>% read_html() %>%  html_node("#placards") %>%
+    html_text() %>% str_extract_all("\\$\\d.\\d+") %>% unlist() %>% parse_number()%>% mean()
+Burl6 <- "https://www.apartments.com/park-slope-brooklyn-ny/?bb=62kx98lnvHihhqwB"
+nw_brooklyn <- Burl6 %>% read_html() %>%  html_node("#placards") %>%
+    html_text() %>% str_extract_all("\\$\\d.\\d+") %>% unlist() %>% parse_number()%>% mean()
+Burl7 <- "https://www.apartments.com/flatbush-brooklyn-ny/"
+flatbush <- Burl7 %>% read_html() %>%  html_node("#placards") %>%
+    html_text() %>% str_extract_all("\\$\\d.\\d+") %>% unlist() %>% parse_number()%>% mean()
+Burl8 <- "https://www.apartments.com/east-new-york-brooklyn-ny/"
+east_ny <- Burl8 %>% read_html() %>%  html_node("#placards") %>%
+    html_text() %>% str_extract_all("\\$\\d.\\d+") %>% unlist() %>% parse_number()%>% mean()
+Burl9 <- "https://www.apartments.com/greenpoint-brooklyn-ny/"
+greenpoint <- Burl9 %>% read_html() %>%  html_node("#placards") %>%
+    html_text() %>% str_extract_all("\\$\\d.\\d+") %>% unlist() %>% parse_number()%>% mean()
+Burl10 <- "https://www.apartments.com/sunset-park-brooklyn-ny/"
+sunset_park<- Burl10 %>% read_html() %>%  html_node("#placards") %>%
+    html_text() %>% str_extract_all("\\$\\d.\\d+") %>% unlist() %>% parse_number()%>% mean()
+Burl11 <- "https://www.apartments.com/bushwick-brooklyn-ny/"
+bushwick <- Burl11 %>% read_html() %>%  html_node("#placards") %>%
+    html_text() %>% str_extract_all("\\$\\d.\\d+") %>% unlist() %>% parse_number()%>% mean()
+#### Manhattan
+manhattan_url <-paste0("https://www.apartments.com/manhattan-ny/", 1:20)
+manhattan <- lapply(manhattan_url,
+                function(pg){
+                  pg %>% read_html() %>% 
+                    html_nodes("#placards") %>% 
+                    html_text() %>%
+                    str_extract_all("\\$\\d.\\d+")
+                })
+manhattan <- parse_number(unlist(manhattan))
+Murl1 <- "https://www.apartments.com/central-harlem-new-york-ny/"
+central_harlem <- Murl1 %>% read_html() %>%  html_node("#placards") %>%
+    html_text() %>% str_extract_all("\\$\\d.\\d+") %>% unlist() %>% parse_number()%>% mean()
+Murl2 <- "https://www.apartments.com/chelsea-new-york-ny/"
+chelsea_clinton <- Murl2 %>% read_html() %>%  html_node("#placards") %>%
+    html_text() %>% str_extract_all("\\$\\d.\\d+") %>% unlist() %>% parse_number()%>% mean()
+Murl3 <- "https://www.apartments.com/east-harlem-new-york-ny/"
+east_harlem <- Murl3 %>% read_html() %>%  html_node("#placards") %>%
+    html_text() %>% str_extract_all("\\$\\d.\\d+") %>% unlist() %>% parse_number()%>% mean()
+Murl4 <- "https://www.apartments.com/gramercy-park-new-york-ny/"
+gramercy_murray <- Murl4 %>% read_html() %>%  html_node("#placards") %>%
+    html_text() %>% str_extract_all("\\$\\d.\\d+") %>% unlist() %>% parse_number()%>% mean()
+Murl5 <- "https://www.apartments.com/greenwich-village-new-york-ny/"
+greenwich_soho <- Murl5 %>% read_html() %>%  html_node("#placards") %>%
+    html_text() %>% str_extract_all("\\$\\d.\\d+") %>% unlist() %>% parse_number()%>% mean()
+Murl6 <- "https://www.apartments.com/lower-manhattan-new-york-ny/"
+lower_manhattan <- Murl6 %>% read_html() %>%  html_node("#placards") %>%
+    html_text() %>% str_extract_all("\\$\\d.\\d+") %>% unlist() %>% parse_number()%>% mean()
+Murl7 <- "https://www.apartments.com/lower-east-side-new-york-ny/"
+lower_east <- Murl7 %>% read_html() %>%  html_node("#placards") %>%
+    html_text() %>% str_extract_all("\\$\\d.\\d+") %>% unlist() %>% parse_number()%>% mean()
+Murl8 <- "https://www.apartments.com/upper-east-side-new-york-ny/"
+upper_east <- Murl8 %>% read_html() %>%  html_node("#placards") %>%
+    html_text() %>% str_extract_all("\\$\\d.\\d+") %>% unlist() %>% parse_number()%>% mean()
+Murl9 <- "https://www.apartments.com/upper-west-side-new-york-ny/"
+upper_west <- Murl9 %>% read_html() %>%  html_node("#placards") %>%
+    html_text() %>% str_extract_all("\\$\\d.\\d+") %>% unlist() %>% parse_number()%>% mean()
+Murl10 <- "https://www.apartments.com/washington-heights-new-york-ny/"
+inwood_washington <- Murl10 %>% read_html() %>%  html_node("#placards") %>%
+    html_text() %>% str_extract_all("\\$\\d.\\d+") %>% unlist() %>% parse_number()%>% mean()
+### Queens
+queens_url <-paste0("https://www.apartments.com/queens-ny/", 1:20)
+queens <- lapply(queens_url,
+                function(pg){
+                  pg %>% read_html() %>% 
+                    html_nodes("#placards") %>% 
+                    html_text() %>%
+                    str_extract_all("\\$\\d.\\d+")
+                })
+queens <- parse_number(unlist(queens))
+Qurl1 <- "https://www.apartments.com/northeast-queens-flushing-ny/"
+north_east <- Qurl1 %>% read_html() %>%  html_node("#placards") %>%
+    html_text() %>% str_extract_all("\\$\\d.\\d+") %>% unlist() %>% parse_number()%>% mean()
+Qurl2 <- "https://www.apartments.com/bayside-ny/"
+north <- Qurl2 %>% read_html() %>%  html_node("#placards") %>%
+    html_text() %>% str_extract_all("\\$\\d.\\d+") %>% unlist() %>% parse_number()%>% mean()
+Qurl3 <- "https://www.apartments.com/central-queens-queens-ny/"
+central <- Qurl3 %>% read_html() %>%  html_node("#placards") %>%
+    html_text() %>% str_extract_all("\\$\\d.\\d+") %>% unlist() %>% parse_number()%>% mean()
+Qurl4 <- "https://www.apartments.com/southeast-queens-jamaica-ny/"
+jamaica <- Qurl4 %>% read_html() %>%  html_node("#placards") %>%
+    html_text() %>% str_extract_all("\\$\\d.\\d+") %>% unlist() %>% parse_number()%>% mean()
+Qurl5 <- "https://www.apartments.com/long-island-city-ny/"
+north_west <- Qurl5 %>% read_html() %>%  html_node("#placards") %>%
+    html_text() %>% str_extract_all("\\$\\d.\\d+") %>% unlist() %>% parse_number()%>% mean()
+Qurl6 <- "https://www.apartments.com/forest-hills-ny/"
+west_central <- Qurl6 %>% read_html() %>%  html_node("#placards") %>%
+    html_text() %>% str_extract_all("\\$\\d.\\d+") %>% unlist() %>% parse_number()%>% mean()
+Qurl7 <- "https://www.apartments.com/south-shore-queens-far-rockaway-ny/"
+rockaway <- Qurl7 %>% read_html() %>%  html_node("#placards") %>%
+    html_text() %>% str_extract_all("\\$\\d.\\d+") %>% unlist() %>% parse_number()%>% mean()
+Qurl8 <- "https://www.apartments.com/hollis-ny/"
+south_east <- Qurl8 %>% read_html() %>%  html_node("#placards") %>%
+    html_text() %>% str_extract_all("\\$\\d.\\d+") %>% unlist() %>% parse_number()%>% mean()
+Qurl9 <- "https://www.apartments.com/howard-beach-ny/"
+south_west <- Qurl9 %>% read_html() %>%  html_node("#placards") %>%
+    html_text() %>% str_extract_all("\\$\\d.\\d+") %>% unlist() %>% parse_number()%>% mean()
+Qurl10<- "https://www.apartments.com/northeast-queens-flushing-ny/"
+west <- Qurl10 %>% read_html() %>%  html_node("#placards") %>%
+    html_text() %>% str_extract_all("\\$\\d.\\d+") %>% unlist() %>% parse_number()%>% mean()
+#### Staten Island
+SI_url <-paste0("https://www.apartments.com/staten-island-ny/", 1:20)
+Staten_Island <- lapply(SI_url,
+                function(pg){
+                  pg %>% read_html() %>% 
+                    html_nodes("#placards") %>% 
+                    html_text() %>%
+                    str_extract_all("\\$\\d.\\d+")
+                })
+Staten_Island <- parse_number(unlist(Staten_Island))
+Surl1 <- "https://www.apartments.com/port-richmond-staten-island-ny/"
+port_richmond <- Surl1 %>% read_html() %>%  html_node("#placards") %>%
+    html_text() %>% str_extract_all("\\$\\d.\\d+") %>% unlist() %>% parse_number()%>% mean()
+Surl2 <- "https://www.apartments.com/stapleton-staten-island-ny/"
+stapleton <- Surl2 %>% read_html() %>%  html_node("#placards") %>%
+    html_text() %>% str_extract_all("\\$\\d.\\d+") %>% unlist() %>% parse_number()%>% mean()
+Surl3 <- "https://www.apartments.com/staten-island-ny-10306/"
+south_shore <- Surl3 %>% read_html() %>%  html_node("#placards") %>%
+    html_text() %>% str_extract_all("\\$\\d.\\d+") %>% unlist() %>% parse_number()%>% mean()
+Surl4 <- "https://www.apartments.com/staten-island-ny-10314/"
+mid_island <- Surl4 %>% read_html() %>%  html_node("#placards") %>%
+    html_text() %>% str_extract_all("\\$\\d.\\d+") %>% unlist() %>% parse_number()%>% mean()
+```
+
+
+#### Collect Neighborhood and Matching UHF42 Code from pdf file on web
+```{r}
+file <- 'http://a816-dohbesp.nyc.gov/IndicatorPublic/EPHTPDF/uhf42.pdf'
+text <- pdf_text(file)
+text2 <- strsplit(text, "\n")
+uhf42_codes <- text2 %>% 
+  str_extract_all(pattern = "\\d{3}") %>% 
+  unlist() %>% 
+  parse_number() %>% 
+  unique() %>% 
+ sort()
+uhf42_names <- c("Kingsbridge - Riverdale", "Northeast Bronx", "Fordham - Bronx Park", "Pelham - Throgs Neck", "Crotona - Tremont", "High Bridge - Morrisania", "Hunts Point - Mott Haven", "Greenpoint", "Downtown - Heights - Slope", "Bedford Stuyvesant - Crown Heights", "East New York", "Sunset Park", "Borough Park", "East Flatbush - Flatbush", "Canarsie - Flatlands", "Bensonhurst - Bay Ridge", "Coney Island - Sheepshead Bay", "Williamsburg - Bushwick", "Washington Heights - Inwood", "Central Harlem - Morningside Heights", "East Harlem", "Upper West Side", "Upper East Side", "Chelsea - Clinton", "Gramercy Park - Murray Hill", "Greenwich Village - Soho", "Union Square - Lower East Side", "Lower Manhattan", "Long Island City - Astoria", "West Queens", "Flushing - Clearview", "Bayside - Little Neck", "Ridgewood - Forest Hills", "Fresh Meadows", "Southwest Queens", "Jamaica", "Southeast Queens", "Rockaway", "Port Richmond", "Stapleton - St. George", "Willowbrook", "South Beach - Tottenville")  
+#uhf42_names <- gsub("NYC UHF 42 Neighborhoods", "", text2)
+#uhf42_names <- gsub("UHF Neighborhood Name", "", uhf42_names)
+#uhf42_names <- gsub("UHF Code", "", uhf42_names)
+#uhf42_names <- gsub("Neighborhood Definition:.+", "", uhf42_names)
+#uhf42_names <- gsub("\\d{3}", "", uhf42_names)
+#uhf42_names <- unlist(str_extract_all(uhf42_names, "(\\s[A-Za-z]+.\\-?.[A-Za-z]+.\\-?.[A-Za-z]+.[A-Za-z]+.\\-?.[A-Za-z]+| Jamaica| Rockaway| Sunset Park)"))
+#uhf42_names <- gsub("\\\\r", "", uhf42_names)
+neighborhood <- data.frame(Code = uhf42_codes, Location = uhf42_names, stringsAsFactors = F)
+kable(neighborhood) %>% kable_styling(font_size = 12) %>% scroll_box(height = "500px", width = "300px")
+#write.csv(neighborhood, file = "Neighborhood.csv", row.names = F)
+```
+
+#### UHF42 Codes and Rent Prices
+
+```{r}
+Rent_prices <- c(central_bronx, fordham, high_bridge, huntspoint, kingsbridge, north_eastbx, south_eastbx, central_brooklyn, sw_brooklyn, borough_park, canarsie_flatlands, south_brooklyn, nw_brooklyn, flatbush, east_ny, greenpoint, sunset_park, bushwick, central_harlem, chelsea_clinton, east_harlem, gramercy_murray, greenwich_soho, lower_manhattan, lower_east, upper_east, upper_west, inwood_washington, north_east, north, central, jamaica, north_west, west_central, rockaway, south_east, south_west, west, port_richmond, stapleton, south_shore, mid_island)
+rent <- data.frame(UHF42Code = zip_table$NCode, avg_Rentprice = Rent_prices, stringsAsFactors = F)
+#write.csv(rent, file = "Rent.csv", row.names = F) #store file
+kable(rent) %>% kable_styling(font_size = 12) %>% scroll_box(height = "500px", width = "250px")
+```
+
+#### Add the average rent prices to the Air Quality dataset
+```{r}
+air_rent <- inner_join(air_q, rent, by = c("geo_entity_id" = "UHF42Code"))
+#rename columns
+names(air_rent) <- c("TypeofToxin", "Unitofmeasurement", "LocationType", "UHF42Code", "Location", "Measurement", "avg_Rentprice")
+#write.csv(air_rent, file = "Air_Rent.csv", row.names = F)
+kable(head(air_rent, 30)) %>% kable_styling(font_size = 10) %>% scroll_box(height = "500px")
+```
+
+<br/> <br/>
+The air quality data concentrates on nine major air pollutants 
+
+```{r}
+airq_cat <- air_rent %>% select(TypeofToxin) %>% distinct()
+kable(airq_cat) %>% kable_styling(bootstrap_options = "striped" ,font_size = 11) %>% scroll_box(height = "500px")
+```
+
+<br/>
+We will focus on these two: $PM2.5$ and $O_3$ for this project.
+
+Background:
+
++ $PM2.5$ - Particular Matter.
+
+   A mixture of solids and liquids floating in the air. PM2.5 substances can travel deep into our lungs and reach the bloodstream. Numerous studies have linked particulate matter exposure to decreased lung function, respiratory symptoms like coughing and labored breathing, and even reduced life expectancy. The [U.S. Environmental Protection Agency (EPA)](https://www3.epa.gov/region1/eco/uep/particulatematter.html) divides particulate matter sources into two categories: primary and secondary. Primary particles come directly from a source, such as agriculture and construction sites. Secondary particles form when gases from burning fuels react with sunlight and water vapor.
+
+
++ $O_3$ - Ozone
+
+  A triatomic form of oxygen that can be harmful to one's health. When inhaled, ozone can damage the lungs. Small amounts when breathe in can cause chest pain, coughing, shortness of breath and lung irritation. Ozone may also worsen chronic respiratory diseases such as asthma and compromise the ability of the body to fight respiratory infections.
+
+
+```{r}
+air_rent2 <- air_rent %>% filter(TypeofToxin %in% c("O3-Attributable Asthma ED Visits","O3-Attributable Asthma Hospitalizations ", "O3-Attributable Cardiac and Respiratory Deaths ", "PM2.5-Attributable Asthma ED Visits ", "PM2.5-Attributable Cardiovascular Hospitalizations (Adults 40 Yrs and Older) ", "PM2.5-Attributable Deaths ", "PM2.5-Attributable Respiratory Hospitalizations (Adults 20 Yrs and Older)"))
+kable(air_rent2) %>% kable_styling(bootstrap_options = "striped" ,font_size = 10) %>% scroll_box(height = "500px")
+```
+
+
+
+## Exploration
+
+
+#### Various rent prices within the cities
+```{r}
+cities <- list(bronx, brooklyn, manhattan, queens, Staten_Island)
+city_rent <- as.data.frame(lapply(cities, `length<-`, max(lengths(cities))))
+names(city_rent) <- c("Bronx", "Brooklyn", "Manhattan", "Queens", "Staten_Island")
+kable(head(city_rent, 20)) %>% kable_styling(font_size = 11) %>% scroll_box(height = "500px")
+summary(city_rent)
+```
+
+##### Transform `city_rent` to long format to do analysis among boroughs
+```{r}
+city_rent2 <- gather(city_rent, key = "City", value = "Rent")
+head(city_rent2)
+median_rent = median(city_rent2$Rent, na.rm = T)
+city_rent2 %>%
+  group_by(City) %>%
+  summarise(price = mean(Rent, na.rm = T)) %>%
+  ggplot(aes(x = City, y = price, fill = City)) + 
+  geom_bar(stat = "identity", size = 1) + 
+  geom_hline(yintercept = median_rent , size = 1, linetype = 2) + labs(title = "Rent Prices by City")
+city_rent2 %>% ggplot(aes(x = City, y = Rent, fill = City)) + geom_boxplot()
+```
+
+Highlights:
+
++ Staten Island had the least reported rent prices and has **cheapest** rent
++ Manhattan is the **most expensive** city to live in with NY
++ Queens is the largest city and has the **most reported prices** but they prices are lower than Manhattan, Bronx and Brooklyn. 
++ According to this [census](https://www.citypopulation.de/php/usa-newyorkcity.php) as of 2018, Brooklyn is the **most popuated city** in NY. If you look at the boxplot, you find that the outliers for Brooklyn are not as extreme. This could mean that rent prices are very competitive hence the ranges are close to each other.
+
+
+##### Rent prices
+```{r}
+ggplot(air_rent2, aes(x = avg_Rentprice)) + geom_histogram(position = "identity") + stat_bin(bins = 10) + ggtitle("Distribution of Rent Prices") + scale_x_continuous(breaks = seq(1200, 4000, 100)) + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+
+The distributin is positively skewed which corroborates with the fact that some folks, not too much, pay more than the average for rent.  
+
+
+##### Which Toxin does more damage?
+```{r}
+air_rent2 %>% ggplot(aes(x = TypeofToxin, y = Measurement, fill = TypeofToxin)) + geom_bar(stat = "identity") + 
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank()) +
+  theme(legend.text = element_text(size=6))
+```
+
+
+##### Which group is affected the most?
+```{r}
+air_rent2 %>% filter(!Unitofmeasurement == "Rate") %>% ggplot(aes(x = Unitofmeasurement, y = Measurement, fill = Unitofmeasurement)) + geom_bar(stat = "identity") + 
+  theme(axis.title.y =element_blank(),
+        axis.text.y =element_blank(),
+        axis.ticks.y =element_blank()) +
+  theme(legend.text = element_text(size=6)) + coord_flip()
+```
+
+Group mostly affected by these toxin especially particular matter, are the kids between ages 0-17, which is plausibe as their bodies are not as immune to the pollutants as the adults. Least affected are those persons in their 20's.
+
+
+
+##### Asthma Hospitalization related to Ozone
+```{r}
+air_rent2 %>% filter(TypeofToxin == "O3-Attributable Asthma Hospitalizations ") %>% ggplot(aes(x = Location, y = Measurement, fill = Location)) + geom_bar(stat = "identity") + theme(legend.position = "none") + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + theme(axis.text=element_text(size=6))
+```
+
+East Harlem has the highest ozone count responsible for Asthma hospitalizations.
+
+##### Asthma Attacks due to Particular Matter
+```{r}
+air_rent2 %>% filter(TypeofToxin == "PM2.5-Attributable Asthma ED Visits ") %>% ggplot(aes(x = Location, y = Measurement, fill = Location)) + geom_bar(stat = "identity") + theme(legend.position = "none") + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + theme(axis.text=element_text(size=6))
+```
+
+Canarsie has the highest count responsible for particular matter interfering with the residents' health problems.
+
+
+##### Median cost of rent in these neighborhoods under these type of toxins.
+```{r}
+air_rent2 %>% group_by(Location) %>% summarise(price = median(avg_Rentprice)) %>% ggplot(aes(x = Location, y = price, fill = price, group = 1)) + geom_point() + geom_line(aes(color = price)) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + theme(axis.text=element_text(size=6))
+```
+
+
+## Statistical Analysis
+
+Is there a relationship between higher rent prices and lower pollution factors in NYC neighborhoods? We can check by running a linear regression model.
+
+```{r analysis}
+#
+plot(air_rent2$avg_Rentprice ~ air_rent2$Measurement)
+obs <- lm(air_rent2$avg_Rentprice ~ air_rent2$Measurement)
+summary(obs)
+abline(obs)
+```
+<br/><br/>
+
+Let's have a closer look at two areas:
+
+O3-Attributable Asthma ED Visits
+```{r non empty}
+df2 <- filter(air_rent2, TypeofToxin == "O3-Attributable Asthma ED Visits")
+plot(df2$avg_Rentprice ~ df2$Measurement)
+obs2 <- lm(df2$avg_Rentprice ~ df2$Measurement)
+summary(obs2)
+abline(obs2)
+```
+
+<br/>
+
+PM2.5-Attributable Respiratory Hospitalizations (Adults 20 Yrs and Older)
+```{r}
+df8 <- filter(air_rent2, TypeofToxin == "PM2.5-Attributable Respiratory Hospitalizations (Adults 20 Yrs and Older)")
+plot(df8$avg_Rentprice ~ df8$Measurement)
+obs8 <- lm(df8$avg_Rentprice ~ df8$Measurement)
+summary(obs8)
+abline(obs8)
+```
+
+<br/>
+
+While none of these models have strong linear relationships (the $R^2$ value for each is very close to 0), they are statistically significant variables (we know this since the P-values for each variable are well below 0.05). This implies there is a negative relationship between air quality and rent prices.
+
+
+## Conclusion
+
+Based on our findings, there is a statistically significant relationship between air quality and rent prices. It is safe to conclude that New York City neighborhoods with higher rent prices have less air pollutants. We cannot say which variable causes the other, but we can say this correlation is of interest to those in the NYC Environmental Department.
+Poor air quality, as we have seen, can lead to chronic diseases, particularly Asthma. This negatively affects people's day to day lives. It is unjust that low-income communities should suffer from the effects of poor air quality.
+
+Our findings might be of interest for future studies that look at the impact of air quality/pollution on human health such as the birth weight of children, children mortality and the elderly. 
