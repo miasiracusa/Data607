@@ -1,0 +1,122 @@
+---
+title: "data 612 assignment 1"
+output: html_document
+---
+
+```{r setup}
+url <- "https://raw.githubusercontent.com/miasiracusa/Data607/master/Data612/wine.csv"
+data <- read.csv(url)
+```
+
+```{r train test}
+train_data <- data
+train_data[1,2] <- 0
+train_data[2,3] <- 0
+train_data[3,4] <- 0
+train_data[4,5] <- 0
+train_data[5,6] <- 0
+test_data <- c(4,4,5,2,1)
+```
+
+
+```{r raw rmse}
+raw_avg <- sum(train_data[,2:6])/25
+
+rmse <- matrix(raw_avg, 6,5)
+
+rmse <- train_data[,2:6] - rmse
+rmse <- rmse^2
+
+rmse[1,1] <- 0
+rmse[2,2] <- 0
+rmse[3,3] <- 0
+rmse[4,4] <- 0
+rmse[5,5] <- 0
+rmse_train <- sum(rmse)/25
+
+rmse_train <- rmse_train^(.5)
+
+rmse_test <- test_data - raw_avg
+rmse_test <- rmse_test^2
+rmse_test <- sum(rmse_test)/5
+rmse_test <- rmse_test^(.5)
+```
+RMSE for training data: 1.414214
+RMSE for test data: 1.523155
+
+```{r bias}
+rmse <- train_data[,2:6]
+
+#bias for wines
+rob.bias <- sum(rmse[,1])/5 - raw_avg
+mary.bias <- sum(rmse[,2])/5 - raw_avg
+richard.bias <- sum(rmse[,3])/5 - raw_avg
+michele.bias <- sum(rmse[,4])/5 - raw_avg
+mia.bias <- sum(rmse[,5])/5 - raw_avg
+#bias for users
+prosecco.bias <- sum(rmse[1,])/4 - raw_avg
+pignoletto.bias <- sum(rmse[2,])/4 - raw_avg
+vermentino.bias <- sum(rmse[3,])/4 - raw_avg
+marinov.bias <- sum(rmse[4,])/4 - raw_avg
+sancerre.bias <- sum(rmse[5,])/4 - raw_avg
+chardonnay.bias <- sum(rmse[6,])/4 - raw_avg
+```
+
+```{r baseline}
+baseline <- matrix(0, 6, 5)
+baseline[1,1] <- raw_avg + rob.bias + prosecco.bias
+baseline[2,1] <- raw_avg + rob.bias + pignoletto.bias
+baseline[3,1] <- raw_avg + rob.bias + vermentino.bias
+baseline[4,1] <- raw_avg + rob.bias + marinov.bias
+baseline[5,1] <- raw_avg + rob.bias + sancerre.bias
+baseline[6,1] <- raw_avg + rob.bias + chardonnay.bias
+
+baseline[1,2] <- raw_avg + mary.bias + prosecco.bias
+baseline[2,2] <- raw_avg + mary.bias + pignoletto.bias
+baseline[3,2] <- raw_avg + mary.bias + vermentino.bias
+baseline[4,2] <- raw_avg + mary.bias + marinov.bias
+baseline[5,2] <- raw_avg + mary.bias + sancerre.bias
+baseline[6,2] <- raw_avg + mary.bias + chardonnay.bias
+
+baseline[1,3] <- raw_avg + richard.bias + prosecco.bias
+baseline[2,3] <- raw_avg + richard.bias + pignoletto.bias
+baseline[3,3] <- raw_avg + richard.bias + vermentino.bias
+baseline[4,3] <- raw_avg + richard.bias + marinov.bias
+baseline[5,3] <- raw_avg + richard.bias + sancerre.bias
+baseline[6,3] <- raw_avg + richard.bias + chardonnay.bias
+
+baseline[1,4] <- raw_avg + michele.bias + prosecco.bias
+baseline[2,4] <- raw_avg + michele.bias + pignoletto.bias
+baseline[3,4] <- raw_avg + michele.bias + vermentino.bias
+baseline[4,4] <- raw_avg + michele.bias + marinov.bias
+baseline[5,4] <- raw_avg + michele.bias + sancerre.bias
+baseline[6,4] <- raw_avg + michele.bias + chardonnay.bias
+
+baseline[1,5] <- raw_avg + mia.bias + prosecco.bias
+baseline[2,5] <- raw_avg + mia.bias + pignoletto.bias
+baseline[3,5] <- raw_avg + mia.bias + vermentino.bias
+baseline[4,5] <- raw_avg + mia.bias + marinov.bias
+baseline[5,5] <- raw_avg + mia.bias + sancerre.bias
+baseline[6,5] <- raw_avg + mia.bias + chardonnay.bias
+#baseline predictors
+baseline
+```
+```{r rmse for baseline}
+ptest <- (sum((test_data- c(3.8, 3.5, 5.55, 3.95, 2.95))^2)/5)^.5
+p <- (rmse-baseline)^2
+p[1,1] <- 0
+p[2,2] <- 0
+p[3,3] <- 0
+p[4,4] <- 0
+p[5,5] <- 0
+p <- (sum(p)/25)^.5
+```
+rmse test: 1.28043
+rmse train: 0.9200543
+
+```{r summ}
+1-ptest/rmse_test
+1-p/rmse_train
+```
+
+From this last calculation, we can see an improvement of prediction for the test set of 15.94% and from the training set of 34.94%.
