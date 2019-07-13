@@ -1,0 +1,87 @@
+---
+title: "data612 ass 2"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library("recommenderlab")
+library("ggplot2")
+library(tidyverse)
+library(kableExtra)
+library(knitr)
+library(recommenderlab)
+```
+
+```{r load data}
+movies <- read.csv("https://raw.githubusercontent.com/miasiracusa/Data607/master/Data612/Data%20612%20ass2/movies.csv")
+
+ratings <- read.csv("https://raw.githubusercontent.com/miasiracusa/Data607/master/Data612/Data%20612%20ass2/ratings.csv")
+
+#merge data frames by movieId
+
+m <- merge(movies, ratings, by="movieId")
+n <- data.matrix(m, rownames.force = NA)
+data(MovieLense)
+MovieLense
+```
+
+
+
+```{r plot, echo=FALSE}
+hist(m$rating)
+```
+The data appears to be skewed to the left. It also appears that people prefer to rate movies with whole numbers. 
+
+Next, I will only examine the most rated movies, so our data is more accurate.
+```{r data clean}
+#pick the most relevant data points (in this case the most rated movies)
+movies <- MovieLense[rowCounts(MovieLense) > 50, colCounts(MovieLense) > 100]
+```
+Next, I will create a train dataset and a test dataset
+```{r train test}
+train <- sample(x = c(TRUE, FALSE), size = nrow(movies),
+                      replace = TRUE, prob = c(0.8, 0.2))
+
+movieTrain <- movies[train, ]
+movieTest <- movies[!train, ]
+```
+
+Next, I will use the cosine method to test for similarity among the movies.
+``` {r cosine}
+similaritems <- similarity(MovieLense[, 1:25], method = "cosine", which = "items")
+heatmap(as.matrix(similaritems))
+```
+
+
+The red indicates that there is a high similarity. This makes sense to appear along the diagonal, since the movies are being compared to themselves. The darker yellow indicates slgihtly more similar items.
+Now we will create an item to item model using the IBCF method.We will start with the training set.
+```{r rec system}
+trainI2I <- Recommender(movieTrain, method = "IBCF", param=list(normalize = "Z-score", method="Jaccard")) 
+```
+
+```{r rec system B}
+class(predicted)
+predicted <- predict(object = trainI2I, newdata = movieTest, n = 10)
+rec <- sapply(predicted@items, function(x) {colnames(movies)}) 
+rec %>% kable() %>% kable_styling(full_width = T)
+```
+
+Above, we can see which movies are recommended to each user in each column.
+
+For the second method, I will use
+``` {r pearson}
+similar_items <- similarity(MovieLense[, 1:25], method = "pearson", which = "items")
+heatmap(as.matrix(similar_items))
+```
+This appears to return more similarity between items, as the yellows are all a lot darker.
+Next I will use the UBCF method to create a recommender system I will start by creating the training set.
+```{r rec system 2}
+trainI2I2 <- Recommender(movieTrain, method = "UBCF", param=list(normalize = "Z-score", method="Jaccard")) 
+```
+
+```{r rec system 2B}
+predicted <- predict(object = trainI2I2, newdata = movieTest, n = 10)
+rec <- sapply(predicted@items, function(x) {colnames(movies)[x]}) 
+rec %>% kable() %>% kable_styling(full_width = T)
+```
+From a quick glance, the second method appears to be much more efficient for this data.
